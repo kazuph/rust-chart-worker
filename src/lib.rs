@@ -1,9 +1,7 @@
-use serde::Deserialize;
-use std::io::Cursor;
-use worker::*;
-
-use image::{ImageBuffer, Rgba};
 use plotters::prelude::*;
+use plotters::series::LineSeries;
+use serde::Deserialize;
+use worker::*;
 
 #[derive(Deserialize)]
 struct GraphRequest {
@@ -12,7 +10,7 @@ struct GraphRequest {
 }
 
 #[event(fetch)]
-async fn fetch(mut req: Request, _env: Env, _ctx: Context) -> Result<Response> {
+pub async fn main(mut req: Request, _env: Env, _ctx: Context) -> Result<Response> {
     console_error_panic_hook::set_once();
 
     if req.method() != Method::Post {
@@ -28,97 +26,84 @@ async fn fetch(mut req: Request, _env: Env, _ctx: Context) -> Result<Response> {
         return Response::error("Data array is empty", 400);
     }
 
+    let svg = match create_chart(&graph_req) {
+        Ok(s) => s,
+        Err(e) => return Response::error(format!("Chart creation error: {}", e), 500),
+    };
+
+    let mut headers = Headers::new();
+    headers.set("Content-Type", "image/svg+xml")?;
+
+    Ok(Response::ok(svg)?.with_headers(headers))
+}
+
+fn create_chart(graph_req: &GraphRequest) -> core::result::Result<String, String> {
     let width = 800;
     let height = 600;
 
-    let mut buffer: ImageBuffer<Rgba<u8>, Vec<u8>> = ImageBuffer::new(width, height);
-    if let Err(e) = try_draw_chart(&mut buffer, &graph_req) {
-        return Response::error(format!("Failed to draw chart: {}", e), 500);
-    }
-
-    let mut png_bytes = Vec::new();
+    let mut svg_data = String::new();
     {
-        let mut cursor = Cursor::new(&mut png_bytes);
-        match image::DynamicImage::ImageRgba8(buffer).write_to(&mut cursor, image::ImageFormat::Png)
-        {
-            Ok(_) => {}
-            Err(_) => return Response::error("Failed to encode image", 500),
+        let root = SVGBackend::with_string(&mut svg_data, (width, height)).into_drawing_area();
+        root.fill(&WHITE)
+            .map_err(|e| format!("Failed to fill: {:?}", e))?;
+
+        let max_val = graph_req.data.iter().cloned().fold(0.0, f64::max);
+        let min_val = graph_req.data.iter().cloned().fold(max_val, f64::min);
+        let padding = (max_val - min_val) * 0.1;
+
+        let mut chart = ChartBuilder::on(&root)
+            .margin(50)
+            .x_label_area_size(30)
+            .y_label_area_size(30)
+            .build_cartesian_2d(
+                0..graph_req.data.len(),
+                min_val - padding..max_val + padding,
+            )
+            .map_err(|e| format!("Failed to build chart: {:?}", e))?;
+
+        chart
+            .configure_mesh()
+            .x_desc("Index")
+            .y_desc("Value")
+            .draw()
+            .map_err(|e| format!("Failed to draw mesh: {:?}", e))?;
+
+        match graph_req.graph_type.as_str() {
+            "bar" => {
+                chart
+                    .draw_series(graph_req.data.iter().enumerate().map(|(idx, &val)| {
+                        Rectangle::new([(idx, 0.0), (idx + 1, val)], RED.filled())
+                    }))
+                    .map_err(|e| format!("Failed to draw bar series: {:?}", e))?;
+            }
+            "scatter" => {
+                chart
+                    .draw_series(
+                        graph_req
+                            .data
+                            .iter()
+                            .enumerate()
+                            .map(|(idx, &val)| Circle::new((idx, val), 5, BLUE.filled())),
+                    )
+                    .map_err(|e| format!("Failed to draw scatter series: {:?}", e))?;
+            }
+            _ => {
+                chart
+                    .draw_series(LineSeries::new(
+                        graph_req
+                            .data
+                            .iter()
+                            .enumerate()
+                            .map(|(idx, &val)| (idx, val)),
+                        &GREEN,
+                    ))
+                    .map_err(|e| format!("Failed to draw line series: {:?}", e))?;
+            }
         }
+
+        root.present()
+            .map_err(|e| format!("Failed to present: {:?}", e))?;
     }
 
-    let mut headers = Headers::new();
-    headers.set("Content-Type", "image/png")?;
-
-    Ok(Response::from_bytes(png_bytes)?.with_headers(headers))
-}
-
-fn try_draw_chart(
-    buffer: &mut ImageBuffer<Rgba<u8>, Vec<u8>>,
-    graph_req: &GraphRequest,
-) -> std::result::Result<(), String> {
-    let (width, height) = buffer.dimensions();
-    let root = BitMapBackend::with_buffer(buffer, (width, height)).into_drawing_area();
-    root.fill(&WHITE).map_err(|e| e.to_string())?;
-
-    let max_val = graph_req.data.iter().cloned().fold(f64::MIN, f64::max);
-    let min_val = graph_req.data.iter().cloned().fold(f64::MAX, f64::min);
-
-    // Add some padding to the value range
-    let value_margin = (max_val - min_val) * 0.1;
-    let y_range = (min_val - value_margin)..(max_val + value_margin);
-
-    let mut chart = ChartBuilder::on(&root)
-        .margin(50)
-        .build_cartesian_2d(0..(graph_req.data.len() as i32), y_range)
-        .map_err(|e| e.to_string())?;
-
-    // Configure mesh with better styling
-    chart
-        .configure_mesh()
-        .x_labels(20)
-        .y_labels(10)
-        .disable_mesh()
-        .axis_style(&BLACK.mix(0.8))
-        .draw()
-        .map_err(|e| e.to_string())?;
-
-    match graph_req.graph_type.as_str() {
-        "bar" => {
-            chart
-                .draw_series(graph_req.data.iter().enumerate().map(|(i, &v)| {
-                    let bar_width = 0.8;
-                    let x0 = i as f64 - bar_width / 2.0;
-                    let x1 = i as f64 + bar_width / 2.0;
-                    Rectangle::new([(x0 as i32, 0.0), (x1 as i32, v)], BLUE.mix(0.8).filled())
-                }))
-                .map_err(|e| e.to_string())?;
-        }
-        "scatter" => {
-            chart
-                .draw_series(
-                    graph_req
-                        .data
-                        .iter()
-                        .enumerate()
-                        .map(|(i, &v)| Circle::new((i as i32, v), 3, BLUE.mix(0.8).filled())),
-                )
-                .map_err(|e| e.to_string())?;
-        }
-        _ => {
-            // Default to line chart
-            chart
-                .draw_series(LineSeries::new(
-                    graph_req
-                        .data
-                        .iter()
-                        .enumerate()
-                        .map(|(i, &v)| (i as i32, v)),
-                    &BLUE.mix(0.8),
-                ))
-                .map_err(|e| e.to_string())?;
-        }
-    }
-
-    root.present().map_err(|e| e.to_string())?;
-    Ok(())
+    Ok(svg_data)
 }
