@@ -1,5 +1,6 @@
 use plotters::prelude::*;
 use plotters::series::LineSeries;
+use resvg::usvg::{self, TreeParsing};
 use serde::Deserialize;
 use worker::*;
 
@@ -31,10 +32,15 @@ pub async fn main(mut req: Request, _env: Env, _ctx: Context) -> Result<Response
         Err(e) => return Response::error(format!("Chart creation error: {}", e), 500),
     };
 
-    let mut headers = Headers::new();
-    headers.set("Content-Type", "image/svg+xml")?;
+    let png_data = match svg_to_png(&svg) {
+        Ok(data) => data,
+        Err(e) => return Response::error(format!("PNG conversion error: {}", e), 500),
+    };
 
-    Ok(Response::ok(svg)?.with_headers(headers))
+    let mut headers = Headers::new();
+    headers.set("Content-Type", "image/png")?;
+
+    Ok(Response::from_bytes(png_data)?.with_headers(headers))
 }
 
 fn create_chart(graph_req: &GraphRequest) -> core::result::Result<String, String> {
@@ -106,4 +112,29 @@ fn create_chart(graph_req: &GraphRequest) -> core::result::Result<String, String
     }
 
     Ok(svg_data)
+}
+
+fn svg_to_png(svg_str: &str) -> Result<Vec<u8>> {
+    // SVGをパース
+    let opt = usvg::Options::default();
+    let tree =
+        usvg::Tree::from_str(svg_str, &opt).map_err(|e| format!("Failed to parse SVG: {}", e))?;
+
+    // resvgツリーを作成
+    let rtree = resvg::Tree::from_usvg(&tree);
+
+    // レンダリングサイズを取得
+    let width = rtree.size.width() as u32;
+    let height = rtree.size.height() as u32;
+
+    // ピクスマップを作成
+    let mut pixmap = tiny_skia::Pixmap::new(width, height).ok_or("Failed to create pixmap")?;
+
+    // SVGをレンダリング
+    rtree.render(tiny_skia::Transform::default(), &mut pixmap.as_mut());
+
+    // PNGにエンコード
+    Ok(pixmap
+        .encode_png()
+        .map_err(|e| format!("Failed to encode PNG: {}", e))?)
 }
