@@ -169,8 +169,21 @@ curl -X POST http://localhost:8787 \
 Deploy to Cloudflare Workers:
 
 ```bash
+# Development
+npx wrangler dev
+# The service will run on http://localhost:8787
+
+# Production Deployment
 npx wrangler deploy
+# This will deploy to https://<your-worker>.workers.dev
 ```
+
+### 📦 Deployment Size
+- Total Upload: ~4.7 MB (gzip: ~2.1 MB)
+- Worker Startup Time: ~5 ms
+- ✨ Fits within Cloudflare Workers' free tier limits!
+
+The deployment size includes the WASM binary and the embedded font file. Despite including a full-featured font for Japanese text support, the worker still comfortably fits within Cloudflare Workers' free tier limits.
 
 ## 📜 License
 
