@@ -55,7 +55,22 @@ curl -X POST http://localhost:8787 \
   -o scatter_plot.png
 ```
 
-### 4. サイン波データのテスト
+### 4. カスタマイズオプションの使用例
+```bash
+# タイトルと軸ラベルを指定
+curl -X POST http://localhost:8787 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "graph_type": "bar",
+    "data": [10, 20, 15, 25, 30],
+    "title": "Monthly Sales 2024",
+    "x_label": "Month",
+    "y_label": "Sales (millions)"
+  }' \
+  -o custom_chart.png
+```
+
+### 5. サイン波データのテスト
 ```bash
 curl -X POST http://localhost:8787 \
   -H "Content-Type: application/json" \
@@ -63,7 +78,7 @@ curl -X POST http://localhost:8787 \
   -o sine_wave.png
 ```
 
-### 5. ランダムデータのテスト
+### 6. ランダムデータのテスト
 ```bash
 curl -X POST http://localhost:8787 \
   -H "Content-Type: application/json" \
@@ -80,7 +95,10 @@ curl -X POST http://localhost:8787 \
 ```json
 {
   "graph_type": string,  // "line", "bar", "scatter"のいずれか
-  "data": number[]       // 描画するデータポイントの配列
+  "data": number[],      // 描画するデータポイントの配列
+  "title": string,       // (オプション) グラフのタイトル
+  "x_label": string,     // (オプション) X軸のラベル（デフォルト: "Index"）
+  "y_label": string      // (オプション) Y軸のラベル（デフォルト: "Value"）
 }
 ```
 
@@ -90,7 +108,7 @@ curl -X POST http://localhost:8787 \
 
 ### エラーレスポンス
 - 405: Method Not Allowed - POSTメソッド以外でアクセスした場合
-- 400: Bad Request - ��正なJSONまたは空のデータ配列
+- 400: Bad Request - 不正なJSONまたは空のデータ配列
 - 500: Internal Server Error - グラフ生成時のエラー
 
 ## デプロイ
