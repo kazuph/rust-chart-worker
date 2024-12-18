@@ -74,6 +74,12 @@ fn create_chart(graph_req: &GraphRequest) -> core::result::Result<Vec<u8>, Strin
         .iter()
         .copied()
         .fold(f64::NEG_INFINITY, f64::max);
+    let chart_content = match graph_req.graph_type.as_str() {
+        "bar" => generate_bar_chart_svg(&graph_req.data),
+        "scatter" => generate_scatter_chart_svg(&graph_req.data),
+        _ => generate_line_chart_svg(&graph_req.data),
+    };
+
     let svg_data = format!(
         r#"<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
@@ -95,9 +101,9 @@ fn create_chart(graph_req: &GraphRequest) -> core::result::Result<Vec<u8>, Strin
     <path d="M 400 550 L 400 550" stroke="black" stroke-width="1" fill="none"/>
     <text x="400" y="550" text-anchor="middle" font-size="16" fill="black">{x_label}</text>
 
-    <!-- バーチャート -->
+    <!-- チャート -->
     <g transform="translate(100, 100)">
-        {bars}
+        {chart_content}
     </g>
 </svg>"#,
         title = graph_req.title.as_deref().unwrap_or(""),
@@ -105,7 +111,7 @@ fn create_chart(graph_req: &GraphRequest) -> core::result::Result<Vec<u8>, Strin
         y_label = graph_req.y_label.as_deref().unwrap_or(""),
         x_axis_ticks = generate_x_axis_ticks(graph_req.data.len()),
         x_label = graph_req.x_label.as_deref().unwrap_or(""),
-        bars = generate_bar_chart_svg(&graph_req.data)
+        chart_content = chart_content
     );
 
     svg_to_png(&svg_data)
@@ -186,6 +192,74 @@ fn generate_bar_chart_svg(data: &[f64]) -> String {
         .join("\n")
 }
 
+fn generate_line_chart_svg(data: &[f64]) -> String {
+    let max_value = data.iter().copied().fold(f64::NEG_INFINITY, f64::max);
+    let segment_width = 600.0 / (data.len() - 1) as f64;
+    let scale = 400.0 / max_value;
+
+    // パスデータを生成
+    let path_data = data
+        .iter()
+        .enumerate()
+        .map(|(i, &value)| {
+            let x = i as f64 * segment_width;
+            let y = 400.0 - (value * scale);
+            if i == 0 {
+                format!("M {} {}", x, y)
+            } else {
+                format!("L {} {}", x, y)
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" ");
+
+    // データポイントとラベルを生成
+    let points = data
+        .iter()
+        .enumerate()
+        .map(|(i, &value)| {
+            let x = i as f64 * segment_width;
+            let y = 400.0 - (value * scale);
+            format!(
+                r#"<circle cx="{}" cy="{}" r="4" fill="blue"/>
+            {}"#,
+                x,
+                y,
+                generate_value_text(x, y - 15.0, value)
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+
+    format!(
+        r#"<path d="{}" stroke="blue" stroke-width="2" fill="none"/>
+        {}"#,
+        path_data, points
+    )
+}
+
+fn generate_scatter_chart_svg(data: &[f64]) -> String {
+    let max_value = data.iter().copied().fold(f64::NEG_INFINITY, f64::max);
+    let segment_width = 600.0 / data.len() as f64;
+    let scale = 400.0 / max_value;
+
+    data.iter()
+        .enumerate()
+        .map(|(i, &value)| {
+            let x = i as f64 * segment_width;
+            let y = 400.0 - (value * scale);
+            format!(
+                r#"<circle cx="{}" cy="{}" r="6" fill="blue"/>
+                {}"#,
+                x,
+                y,
+                generate_value_text(x, y - 15.0, value)
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
 fn generate_value_text(x: f64, y: f64, value: f64) -> String {
     format!(
         r#"<g transform="translate({} {})">
@@ -201,7 +275,7 @@ fn svg_to_png(svg_str: &str) -> core::result::Result<Vec<u8>, String> {
     let mut fontdb = fontdb::Database::new();
 
     // フォントデータをバイナリとして直接埋め込み
-    static FONT_DATA: &[u8] = include_bytes!("../kunimaru.ttf");
+    static FONT_DATA: &[u8] = include_bytes!("../assets/kunimaru.ttf");
     let font_data = FONT_DATA.to_vec();
     fontdb.load_font_data(font_data);
 
