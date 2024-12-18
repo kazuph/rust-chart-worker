@@ -1,32 +1,32 @@
-# Rust Chart Worker
+# 📊 Rust Chart Worker
 
-A service that dynamically generates charts using Rust on Cloudflare Workers.
+🚀 A service that dynamically generates charts using Rust on Cloudflare Workers.
 This service can create line graphs, bar charts, scatter plots, and more using the plotters library.
-Fully supports Japanese text in titles and labels using the M+ 1p font, making it perfect for both English and Japanese applications.
+🇯🇵 Fully supports Japanese text in titles and labels using the M+ 1p font, making it perfect for both English and Japanese applications.
 
-## Output Examples
+## 🎨 Output Examples
 
 ![Custom Chart Example](images/custom_chart.png)
 
-## Recent Improvements
+## ✨ Recent Improvements
 
-### Font Processing Improvements
-- Enabled text functionality in usvg and resvg
-- Implemented proper font loading and processing
-- Added text path conversion processing
-- Optimized text styling
+### 🔤 Font Processing Improvements
+- ✅ Enabled text functionality in usvg and resvg
+- 📦 Implemented proper font loading and processing
+- 🔄 Added text path conversion processing
+- 🎯 Optimized text styling
 
-### Font Used
+### 📝 Font Used
 This project uses [M+ 1p Font](https://mplus-fonts.osdn.jp/).
 M+ 1p Font is a modern and clean Japanese font that provides excellent readability for graphs and charts.
 
-## Requirements
+## 🛠️ Requirements
 
-- Rust
-- wrangler (Cloudflare Workers CLI)
-- curl (for testing)
+- 🦀 Rust
+- ⚡ wrangler (Cloudflare Workers CLI)
+- 🔧 curl (for testing)
 
-## Setup
+## 🚀 Setup
 
 ```bash
 # Install wrangler
@@ -36,7 +36,7 @@ npm install -g wrangler
 cargo install worker-build
 ```
 
-## Running the Service
+## 🏃‍♂️ Running the Service
 
 Start the local development server:
 
@@ -46,9 +46,9 @@ npx wrangler dev
 
 The service will run on `http://localhost:8787` by default.
 
-## Test curl Commands
+## 🧪 Test curl Commands
 
-### 1. Line Chart (Default)
+### 1. 📈 Line Chart (Default)
 
 ![Line Chart Example](images/line_chart.png)
 
@@ -59,7 +59,7 @@ curl -X POST http://localhost:8787 \
   -o images/line_chart.png
 ```
 
-### 2. Bar Chart
+### 2. 📊 Bar Chart
 
 ![Bar Chart Example](images/bar_chart.png)
 
@@ -70,7 +70,7 @@ curl -X POST http://localhost:8787 \
   -o images/bar_chart.png
 ```
 
-### 3. Scatter Plot
+### 3. 🔵 Scatter Plot
 
 ![Scatter Plot Example](images/scatter_plot.png)
 
@@ -81,7 +81,7 @@ curl -X POST http://localhost:8787 \
   -o images/scatter_plot.png
 ```
 
-### 4. Using Customization Options
+### 4. 🎨 Using Customization Options
 
 ![Custom Chart Example](images/custom_chart.png)
 
@@ -99,7 +99,7 @@ curl -X POST http://localhost:8787 \
   -o images/custom_chart.png
 ```
 
-### 4.1. Using Japanese Customization Options
+### 4.1. 🇯🇵 Using Japanese Customization Options
 
 ![Custom Chart Japanese Example](images/custom_chart_ja.png)
 
@@ -117,7 +117,7 @@ curl -X POST http://localhost:8787 \
   -o images/custom_chart_ja.png
 ```
 
-### 5. Sine Wave Data Test
+### 5. 〽️ Sine Wave Data Test
 
 ![Sine Wave Example](images/sine_wave.png)
 
@@ -128,7 +128,7 @@ curl -X POST http://localhost:8787 \
   -o images/sine_wave.png
 ```
 
-### 6. Random Data Test
+### 6. 🎲 Random Data Test
 
 ![Random Data Example](images/random_data.png)
 
@@ -139,12 +139,12 @@ curl -X POST http://localhost:8787 \
   -o images/random_data.png
 ```
 
-## API Specification
+## 📚 API Specification
 
-### Endpoint
+### 🔌 Endpoint
 - POST /
 
-### Request Body
+### 📥 Request Body
 ```json
 {
   "graph_type": string,  // "line", "bar", or "scatter"
@@ -155,16 +155,16 @@ curl -X POST http://localhost:8787 \
 }
 ```
 
-### Response
+### 📤 Response
 - Content-Type: image/png
 - Returns the generated graph image in PNG format
 
-### Error Responses
+### ⚠️ Error Responses
 - 405: Method Not Allowed - When accessed with methods other than POST
 - 400: Bad Request - Invalid JSON or empty data array
 - 500: Internal Server Error - Error during graph generation
 
-## Deployment
+## 🚀 Deployment
 
 Deploy to Cloudflare Workers:
 
@@ -172,6 +172,6 @@ Deploy to Cloudflare Workers:
 npx wrangler deploy
 ```
 
-## License
+## 📜 License
 
 MIT
