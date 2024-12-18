@@ -17,7 +17,7 @@ This service can create line graphs, bar charts, scatter plots, and more using t
 - 🎯 Optimized text styling
 
 ### 📝 Font Used
-This project uses [M+ 1p Font](https://mplus-fonts.osdn.jp/).
+This project uses [M+ 1p Font](https://mplusfonts.github.io/).
 M+ 1p Font is a modern and clean Japanese font that provides excellent readability for graphs and charts.
 
 ## 🛠️ Requirements
