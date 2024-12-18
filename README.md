@@ -2,6 +2,7 @@
 
 A service that dynamically generates charts using Rust on Cloudflare Workers.
 This service can create line graphs, bar charts, scatter plots, and more using the plotters library.
+Fully supports Japanese text in titles and labels using the M+ 1p font, making it perfect for both English and Japanese applications.
 
 ## Output Examples
 
@@ -16,8 +17,8 @@ This service can create line graphs, bar charts, scatter plots, and more using t
 - Optimized text styling
 
 ### Font Used
-This project uses [Nikumaru Font](http://www.fontna.com/blog/1651/).
-Nikumaru Font is a rounded, easy-to-read Japanese font that was chosen to enhance graph readability.
+This project uses [M+ 1p Font](https://mplus-fonts.osdn.jp/).
+M+ 1p Font is a modern and clean Japanese font that provides excellent readability for graphs and charts.
 
 ## Requirements
 
@@ -96,6 +97,24 @@ curl -X POST http://localhost:8787 \
     "y_label": "Sales (millions)"
   }' \
   -o images/custom_chart.png
+```
+
+### 4.1. Using Japanese Customization Options
+
+![Custom Chart Japanese Example](images/custom_chart_ja.png)
+
+```bash
+# Specify title and axis labels in Japanese
+curl -X POST http://localhost:8787 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "graph_type": "bar",
+    "data": [10, 20, 15, 25, 30],
+    "title": "月間売上推移 2024年",
+    "x_label": "月",
+    "y_label": "売上（百万円）"
+  }' \
+  -o images/custom_chart_ja.png
 ```
 
 ### 5. Sine Wave Data Test
