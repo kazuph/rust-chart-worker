@@ -275,7 +275,7 @@ fn svg_to_png(svg_str: &str) -> core::result::Result<Vec<u8>, String> {
     let mut fontdb = fontdb::Database::new();
 
     // フォントデータをバイナリとして直接埋め込み
-    static FONT_DATA: &[u8] = include_bytes!("../assets/nikumaru.ttf");
+    static FONT_DATA: &[u8] = include_bytes!("../assets/MPLUS1p-Regular.ttf");
     let font_data = FONT_DATA.to_vec();
     fontdb.load_font_data(font_data);
 
