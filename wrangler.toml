@@ -1,4 +1,4 @@
-name = "rust-chart-wrker"
+name = "rust-chart-worker"
 main = "build/worker/shim.mjs"
 compatibility_date = "2024-12-17"
 version = "1.0.0"
