@@ -1,11 +1,14 @@
 [package]
 name = "rust-chart-wrker"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 authors = [ "Kazuhiro Homma <kazu.homma@gmail.com>" ]
+description = "A service that dynamically generates charts using Rust on Cloudflare Workers"
+repository = "https://github.com/kazuph/rust-chart-wrker"
+license = "MIT"
 
 [package.metadata.release]
-release = false
+release = true
 
 [package.metadata.wasm-pack.profile.release]
 wasm-opt = false
