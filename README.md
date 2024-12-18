@@ -1,95 +1,91 @@
 # Rust Chart Worker
 
-Cloudflare WorkersでRustを使用して動的にグラフを生成するサービスです。
-plottersライブラリを使用して、折れ線グラフ、棒グラフ、散布図などを生成できます。
+A service that dynamically generates charts using Rust on Cloudflare Workers.
+This service can create line graphs, bar charts, scatter plots, and more using the plotters library.
 
-## 出力例
+## Output Examples
 
-![カスタムチャート例](images/custom_chart.png)
+![Custom Chart Example](images/custom_chart.png)
 
-## 最近の改善点
+## Recent Improvements
 
-### フォント処理の改善
-- usvgとresvgのtext機能を有効化
-- フォントの適切な読み込みと処理を実装
-- テキストのパス変換処理を追加
-- テキストスタイルの最適化
+### Font Processing Improvements
+- Enabled text functionality in usvg and resvg
+- Implemented proper font loading and processing
+- Added text path conversion processing
+- Optimized text styling
 
-### 使用フォント
-このプロジェクトでは[にくまるフォント](http://www.fontna.com/blog/1651/)を使用しています。
-にくまるフォントは、丸みのある読みやすい日本語フォントで、グラフの可読性を高めるために採用しました。
+### Font Used
+This project uses [Nikumaru Font](http://www.fontna.com/blog/1651/).
+Nikumaru Font is a rounded, easy-to-read Japanese font that was chosen to enhance graph readability.
 
-## 必要条件
+## Requirements
 
 - Rust
 - wrangler (Cloudflare Workers CLI)
-- curl (テスト用)
+- curl (for testing)
 
-## セットアップ
+## Setup
 
 ```bash
-# wranglerのインストール
+# Install wrangler
 npm install -g wrangler
 
-# 依存関係のインストール
+# Install dependencies
 cargo install worker-build
 ```
 
-## 実行方法
+## Running the Service
 
-ローカル開発サーバーの起動:
+Start the local development server:
 
 ```bash
 npx wrangler dev
 ```
 
-デフォルトでは `http://localhost:8787` でサービスが起動します。
+The service will run on `http://localhost:8787` by default.
 
-## テスト用curlコマンド
+## Test curl Commands
 
-### 1. 折れ線グラフ（デフォルト）
+### 1. Line Chart (Default)
 
-![折れ線グラフ例](images/line_chart.png)
+![Line Chart Example](images/line_chart.png)
 
 ```bash
 curl -X POST http://localhost:8787 \
   -H "Content-Type: application/json" \
   -d '{"graph_type": "line", "data": [10, 20, 15, 25, 30, 20, 35, 40, 30, 45]}' \
   -o images/line_chart.png
-
 ```
 
-### 2. 棒グラフ
+### 2. Bar Chart
 
-![棒グラフ例](images/bar_chart.png)
+![Bar Chart Example](images/bar_chart.png)
 
 ```bash
 curl -X POST http://localhost:8787 \
   -H "Content-Type: application/json" \
   -d '{"graph_type": "bar", "data": [10, 20, 15, 25, 30, 20, 35, 40, 30, 45]}' \
   -o images/bar_chart.png
-
 ```
 
-### 3. 散布図
+### 3. Scatter Plot
 
-![散布図例](images/scatter_plot.png)
+![Scatter Plot Example](images/scatter_plot.png)
 
 ```bash
 curl -X POST http://localhost:8787 \
   -H "Content-Type: application/json" \
   -d '{"graph_type": "scatter", "data": [10, 20, 15, 25, 30, 20, 35, 40, 30, 45]}' \
   -o images/scatter_plot.png
-
 ```
 
+### 4. Using Customization Options
 
-### 4. カスタマイズオプションの使用例
-
-![カスタマイズグラフ例](images/custom_chart.png)
+![Custom Chart Example](images/custom_chart.png)
 
 ```bash
-# タイトルと軸ラベルを指定
+# Specify title and axis labels
 curl -X POST http://localhost:8787 \
   -H "Content-Type: application/json" \
   -d '{
@@ -100,67 +96,63 @@ curl -X POST http://localhost:8787 \
     "y_label": "Sales (millions)"
   }' \
   -o images/custom_chart.png
-
 ```
 
+### 5. Sine Wave Data Test
 
-### 5. サイン波データのテスト
-
-![サイン波グラフ例](images/sine_wave.png)
+![Sine Wave Example](images/sine_wave.png)
 
 ```bash
 curl -X POST http://localhost:8787 \
   -H "Content-Type: application/json" \
   -d "{\"graph_type\": \"line\", \"data\": $(python3 -c 'import math; print([math.sin(x/10)*10 + 20 for x in range(50)])')}" \
   -o images/sine_wave.png
-
 ```
 
-### 6. ランダムデータのテスト
+### 6. Random Data Test
 
-![ランダムデータグラフ例](images/random_data.png)
+![Random Data Example](images/random_data.png)
 
 ```bash
 curl -X POST http://localhost:8787 \
   -H "Content-Type: application/json" \
   -d "{\"graph_type\": \"line\", \"data\": $(python3 -c 'import random; print([random.uniform(0, 100) for _ in range(20)])')}" \
   -o images/random_data.png
-
 ```
 
-## APIの仕様
+## API Specification
 
-### エンドポイント
+### Endpoint
 - POST /
 
-### リクエストボディ
+### Request Body
 ```json
 {
-  "graph_type": string,  // "line", "bar", "scatter"のいずれか
-  "data": number[],      // 描画するデータポイントの配列
-  "title": string,       // (オプション) グラフのタイトル
-  "x_label": string,     // (オプション) X軸のラベル（デフォルト: "Index"）
-  "y_label": string      // (オプション) Y軸のラベル（デフォルト: "Value"）
+  "graph_type": string,  // "line", "bar", or "scatter"
+  "data": number[],      // Array of data points to plot
+  "title": string,       // (Optional) Graph title
+  "x_label": string,     // (Optional) X-axis label (default: "Index")
+  "y_label": string      // (Optional) Y-axis label (default: "Value")
 }
 ```
 
-### レスポンス
+### Response
 - Content-Type: image/png
-- 生成されたグラフ画像がPNG形式で返却されます
+- Returns the generated graph image in PNG format
 
-### エラーレスポンス
-- 405: Method Not Allowed - POSTメソッド以外でアクセスした場合
-- 400: Bad Request - 不正なJSONまたは空のデータ配列
-- 500: Internal Server Error - グラフ生成時のエラー
+### Error Responses
+- 405: Method Not Allowed - When accessed with methods other than POST
+- 400: Bad Request - Invalid JSON or empty data array
+- 500: Internal Server Error - Error during graph generation
 
-## デプロイ
+## Deployment
 
-Cloudflare Workersへのデプロイ:
+Deploy to Cloudflare Workers:
 
 ```bash
 npx wrangler deploy
 ```
 
-## ライセンス
+## License
 
 MIT
