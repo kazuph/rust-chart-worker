@@ -1059,7 +1059,7 @@ checksum = "6c20b6793b5c2fa6553b250154b78d6d0db37e72700ae35fad9387a46f487c97"
 
 [[package]]
 name = "rust-chart-worker"
-version = "1.0.0"
+version = "1.1.0"
 dependencies = [
  "console_error_panic_hook",
  "fontdb",

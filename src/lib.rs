@@ -18,13 +18,16 @@ struct GraphRequest {
 pub async fn main(mut req: Request, _env: Env, _ctx: Context) -> Result<Response> {
     console_error_panic_hook::set_once();
 
-    if req.method() != Method::Post {
-        return Response::error("Method not allowed", 405);
-    }
-
-    let graph_req: GraphRequest = match req.json().await {
-        Ok(val) => val,
-        Err(_) => return Response::error("Invalid JSON", 400),
+    let graph_req = match req.method() {
+        Method::Post => match req.json().await {
+            Ok(val) => val,
+            Err(_) => return Response::error("Invalid JSON", 400),
+        },
+        Method::Get => match parse_query_params(req.url()?) {
+            Ok(val) => val,
+            Err(e) => return Response::error(e, 400),
+        },
+        _ => return Response::error("Method not allowed", 405),
     };
 
     if graph_req.data.is_empty() {
@@ -40,6 +43,43 @@ pub async fn main(mut req: Request, _env: Env, _ctx: Context) -> Result<Response
     headers.set("Content-Type", "image/png")?;
 
     Ok(Response::from_bytes(png_data)?.with_headers(headers))
+}
+
+fn parse_query_params(url: Url) -> core::result::Result<GraphRequest, &'static str> {
+    let params = url.query_pairs();
+    let mut graph_type = String::from("line"); // デフォルトはline
+    let mut data = Vec::new();
+    let mut title = None;
+    let mut x_label = None;
+    let mut y_label = None;
+
+    for (key, value) in params {
+        match key.as_ref() {
+            "type" => graph_type = value.to_string(),
+            "data" => {
+                data = value
+                    .split(',')
+                    .filter_map(|s| s.trim().parse::<f64>().ok())
+                    .collect();
+            }
+            "title" => title = Some(value.to_string()),
+            "x_label" => x_label = Some(value.to_string()),
+            "y_label" => y_label = Some(value.to_string()),
+            _ => {}
+        }
+    }
+
+    if data.is_empty() {
+        return Err("No data provided or invalid data format");
+    }
+
+    Ok(GraphRequest {
+        graph_type,
+        data,
+        title,
+        x_label,
+        y_label,
+    })
 }
 
 fn create_chart(graph_req: &GraphRequest) -> core::result::Result<Vec<u8>, String> {

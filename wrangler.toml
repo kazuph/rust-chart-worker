@@ -1,7 +1,7 @@
 name = "rust-chart-worker"
 main = "build/worker/shim.mjs"
 compatibility_date = "2024-12-17"
-version = "1.0.0"
+version = "1.1.0"
 
 [build]
 command = "cargo install -q worker-build && worker-build --release"
