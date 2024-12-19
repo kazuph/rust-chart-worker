@@ -53,6 +53,11 @@ The service will run on `http://localhost:8787` by default.
 ![Line Chart Example](images/line_chart.png)
 
 ```bash
+# Using GET request
+curl "http://localhost:8787/api?type=line&data=10,20,15,25,30,20,35,40,30,45" \
+  -o images/line_chart.png
+
+# Using POST request
 curl -X POST http://localhost:8787 \
   -H "Content-Type: application/json" \
   -d '{"graph_type": "line", "data": [10, 20, 15, 25, 30, 20, 35, 40, 30, 45]}' \
@@ -64,6 +69,11 @@ curl -X POST http://localhost:8787 \
 ![Bar Chart Example](images/bar_chart.png)
 
 ```bash
+# Using GET request
+curl "http://localhost:8787/api?type=bar&data=10,20,15,25,30,20,35,40,30,45" \
+  -o images/bar_chart.png
+
+# Using POST request
 curl -X POST http://localhost:8787 \
   -H "Content-Type: application/json" \
   -d '{"graph_type": "bar", "data": [10, 20, 15, 25, 30, 20, 35, 40, 30, 45]}' \
@@ -75,6 +85,11 @@ curl -X POST http://localhost:8787 \
 ![Scatter Plot Example](images/scatter_plot.png)
 
 ```bash
+# Using GET request
+curl "http://localhost:8787/api?type=scatter&data=10,20,15,25,30,20,35,40,30,45" \
+  -o images/scatter_plot.png
+
+# Using POST request
 curl -X POST http://localhost:8787 \
   -H "Content-Type: application/json" \
   -d '{"graph_type": "scatter", "data": [10, 20, 15, 25, 30, 20, 35, 40, 30, 45]}' \
@@ -86,7 +101,11 @@ curl -X POST http://localhost:8787 \
 ![Custom Chart Example](images/custom_chart.png)
 
 ```bash
-# Specify title and axis labels
+# Using GET request with customization
+curl "http://localhost:8787/api?type=bar&data=10,20,15,25,30&title=Monthly%20Sales%202024&x_label=Month&y_label=Sales%20(millions)" \
+  -o images/custom_chart.png
+
+# Using POST request with customization
 curl -X POST http://localhost:8787 \
   -H "Content-Type: application/json" \
   -d '{
@@ -104,7 +123,11 @@ curl -X POST http://localhost:8787 \
 ![Custom Chart Japanese Example](images/custom_chart_ja.png)
 
 ```bash
-# Specify title and axis labels in Japanese
+# Using GET request with Japanese customization
+curl "http://localhost:8787/api?type=bar&data=10,20,15,25,30&title=月間売上推移%202024年&x_label=月&y_label=売上（百万円）" \
+  -o images/custom_chart_ja.png
+
+# Using POST request with Japanese customization
 curl -X POST http://localhost:8787 \
   -H "Content-Type: application/json" \
   -d '{
@@ -122,6 +145,11 @@ curl -X POST http://localhost:8787 \
 ![Sine Wave Example](images/sine_wave.png)
 
 ```bash
+# Using GET request
+curl "http://localhost:8787/api?type=line&data=$(python3 -c 'import math; print(",".join(str(math.sin(x/10)*10 + 20) for x in range(50)))')" \
+  -o images/sine_wave.png
+
+# Using POST request
 curl -X POST http://localhost:8787 \
   -H "Content-Type: application/json" \
   -d "{\"graph_type\": \"line\", \"data\": $(python3 -c 'import math; print([math.sin(x/10)*10 + 20 for x in range(50)])')}" \
@@ -133,6 +161,11 @@ curl -X POST http://localhost:8787 \
 ![Random Data Example](images/random_data.png)
 
 ```bash
+# Using GET request
+curl "http://localhost:8787/api?type=line&data=$(python3 -c 'import random; print(",".join(str(random.uniform(0, 100)) for _ in range(20)))')" \
+  -o images/random_data.png
+
+# Using POST request
 curl -X POST http://localhost:8787 \
   -H "Content-Type: application/json" \
   -d "{\"graph_type\": \"line\", \"data\": $(python3 -c 'import random; print([random.uniform(0, 100) for _ in range(20)])')}" \
@@ -141,17 +174,28 @@ curl -X POST http://localhost:8787 \
 
 ## 📚 API Specification
 
-### 🔌 Endpoint
+### 🔌 Endpoints
+- GET /api
 - POST /
 
-### 📥 Request Body
+### 📥 Request Format
+#### GET Request Query Parameters
+```
+type: string      // "line", "bar", or "scatter" (default: "line")
+data: string      // Comma-separated data points (e.g., "10,20,30")
+title: string     // (Optional) Graph title
+x_label: string   // (Optional) X-axis label
+y_label: string   // (Optional) Y-axis label
+```
+
+#### POST Request Body
 ```json
 {
   "graph_type": string,  // "line", "bar", or "scatter"
   "data": number[],      // Array of data points to plot
   "title": string,       // (Optional) Graph title
-  "x_label": string,     // (Optional) X-axis label (default: "Index")
-  "y_label": string      // (Optional) Y-axis label (default: "Value")
+  "x_label": string,     // (Optional) X-axis label
+  "y_label": string      // (Optional) Y-axis label
 }
 ```
 
@@ -160,8 +204,8 @@ curl -X POST http://localhost:8787 \
 - Returns the generated graph image in PNG format
 
 ### ⚠️ Error Responses
-- 405: Method Not Allowed - When accessed with methods other than POST
-- 400: Bad Request - Invalid JSON or empty data array
+- 405: Method Not Allowed - When accessed with methods other than GET or POST
+- 400: Bad Request - Invalid JSON/parameters or empty data array
 - 500: Internal Server Error - Error during graph generation
 
 ## 🚀 Deployment
