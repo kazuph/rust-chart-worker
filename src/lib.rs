@@ -49,6 +49,7 @@ struct GraphRequest {
     title: Option<String>,
     x_label: Option<String>,
     y_label: Option<String>,
+    colors: Option<Vec<String>>, // Add colors field
 }
 
 #[event(fetch)]
@@ -85,16 +86,17 @@ pub async fn main(mut req: Request, _env: Env, _ctx: Context) -> Result<Response
 fn parse_query_params(url: Url) -> core::result::Result<GraphRequest, &'static str> {
     let params = url.query_pairs();
     let mut graph_type = GraphType::default();
-    let mut data = Vec::new();
-    let mut series = Vec::new();
-    let mut title = None;
-    let mut x_label = None;
-    let mut y_label = None;
+    let mut data: Vec<f64> = Vec::new();
+    let mut series: Vec<Series> = Vec::new();
+    let mut title: Option<String> = None;
+    let mut x_label: Option<String> = None;
+    let mut y_label: Option<String> = None;
+    let mut colors: Option<Vec<String>> = None;
 
     // シリーズデータのための一時的な保存領域
-    let mut series_values = Vec::new();
-    let mut series_labels = Vec::new();
-    let mut series_colors = Vec::new();
+    let mut series_values: Vec<f64> = Vec::new();
+    let mut series_labels: Vec<String> = Vec::new();
+    let mut series_colors: Vec<String> = Vec::new();
 
     for (key, value) in params {
         match key.as_ref() {
@@ -121,7 +123,7 @@ fn parse_query_params(url: Url) -> core::result::Result<GraphRequest, &'static s
                 series_labels = value.split(',').map(|s| s.trim().to_string()).collect();
             }
             "colors" => {
-                series_colors = value.split(',').map(|s| s.trim().to_string()).collect();
+                colors = Some(value.split(',').map(|s| s.trim().to_string()).collect());
             }
             "title" => title = Some(value.to_string()),
             "x_label" => x_label = Some(value.to_string()),
@@ -135,7 +137,7 @@ fn parse_query_params(url: Url) -> core::result::Result<GraphRequest, &'static s
         let mut series_data = Vec::new();
         for (i, &value) in series_values.iter().enumerate() {
             let label = series_labels.get(i).cloned();
-            let color = series_colors.get(i).cloned();
+            let color = colors.as_ref().and_then(|c| c.get(i).cloned());
             series_data.push(DataPoint {
                 value,
                 label,
@@ -145,7 +147,7 @@ fn parse_query_params(url: Url) -> core::result::Result<GraphRequest, &'static s
         series.push(Series {
             name: None,
             data: series_data,
-            color: None,
+            color: colors.as_ref().and_then(|c| c.first().cloned()),
         });
     }
 
@@ -160,7 +162,14 @@ fn parse_query_params(url: Url) -> core::result::Result<GraphRequest, &'static s
         title,
         x_label,
         y_label,
+        colors,
     })
+}
+
+fn get_default_colors() -> Vec<&'static str> {
+    vec![
+        "#0000FF", "#FFB3B3", "#B3E0FF", "#FFE6B3", "#B3FFB3", "#E6B3FF", "#FFD9B3",
+    ]
 }
 
 fn create_chart(graph_req: &GraphRequest) -> core::result::Result<Vec<u8>, String> {
@@ -179,22 +188,53 @@ fn create_chart(graph_req: &GraphRequest) -> core::result::Result<Vec<u8>, Strin
             data: graph_req
                 .data
                 .iter()
-                .map(|&v| DataPoint {
+                .enumerate()
+                .map(|(i, &v)| DataPoint {
                     value: v,
                     label: None,
-                    color: None,
+                    color: graph_req.colors.as_ref().and_then(|c| c.get(i).cloned()),
                 })
                 .collect(),
-            color: None,
+            color: graph_req.colors.as_ref().and_then(|c| c.first().cloned()),
         }]
     } else {
         graph_req.series.clone()
     };
 
     let (chart_content, needs_axes) = match graph_req.graph_type {
-        GraphType::Bar => (generate_bar_chart_svg(&graph_req.data), true),
-        GraphType::Scatter => (generate_scatter_chart_svg(&graph_req.data), true),
-        GraphType::Line => (generate_line_chart_svg(&graph_req.data), true),
+        GraphType::Bar => (
+            generate_bar_chart_svg(
+                &graph_req.data,
+                &series[0]
+                    .data
+                    .iter()
+                    .filter_map(|d| d.color.clone())
+                    .collect::<Vec<String>>(),
+            ),
+            true,
+        ),
+        GraphType::Scatter => (
+            generate_scatter_chart_svg(
+                &graph_req.data,
+                &series[0]
+                    .data
+                    .iter()
+                    .filter_map(|d| d.color.clone())
+                    .collect::<Vec<String>>(),
+            ),
+            true,
+        ),
+        GraphType::Line => (
+            generate_line_chart_svg(
+                &graph_req.data,
+                &series[0]
+                    .data
+                    .iter()
+                    .filter_map(|d| d.color.clone())
+                    .collect::<Vec<String>>(),
+            ),
+            true,
+        ),
         GraphType::Pie => (generate_pie_chart_svg(&series, false), false),
         GraphType::Donut => (generate_pie_chart_svg(&series, true), false),
         GraphType::Area => (generate_area_chart_svg(&series), true),
@@ -325,10 +365,15 @@ fn generate_x_axis_ticks(num_bars: usize) -> String {
     ticks
 }
 
-fn generate_bar_chart_svg(data: &[f64]) -> String {
+fn generate_bar_chart_svg(data: &[f64], colors: &[String]) -> String {
     let max_value = data.iter().copied().fold(f64::NEG_INFINITY, f64::max);
     let bar_width = 600.0 / data.len() as f64;
     let scale = 400.0 / max_value;
+    let default_colors = get_default_colors();
+    let color = colors
+        .first()
+        .map(|s| s.as_str())
+        .unwrap_or(default_colors[0]);
 
     data.iter()
         .enumerate()
@@ -339,11 +384,12 @@ fn generate_bar_chart_svg(data: &[f64]) -> String {
             let text_x = x + (bar_width * 0.4);
             let text_y = y + (height / 2.0);
             format!(
-                "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" fill=\"#B3E0FF\"/><path d=\"M {} {} h 0\" stroke=\"white\" stroke-width=\"1\"/><path d=\"M {} {} h 0\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M {} {} h 0\" stroke=\"white\" stroke-width=\"2\" fill=\"none\"/>{}>",
+                "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" fill=\"{}\"/><path d=\"M {} {} h 0\" stroke=\"white\" stroke-width=\"1\"/><path d=\"M {} {} h 0\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M {} {} h 0\" stroke=\"white\" stroke-width=\"2\" fill=\"none\"/>{}>",
                 x,
                 y,
                 bar_width * 0.8,
                 height,
+                color,
                 text_x,
                 text_y,
                 text_x,
@@ -357,54 +403,60 @@ fn generate_bar_chart_svg(data: &[f64]) -> String {
         .join("\n")
 }
 
-fn generate_line_chart_svg(data: &[f64]) -> String {
+fn generate_line_chart_svg(data: &[f64], colors: &[String]) -> String {
     let max_value = data.iter().copied().fold(f64::NEG_INFINITY, f64::max);
     let segment_width = 600.0 / (data.len() - 1) as f64;
     let scale = 400.0 / max_value;
+    let default_colors = get_default_colors();
+    let color = colors
+        .get(0)
+        .map(|s| s.as_str())
+        .unwrap_or(default_colors[0]);
 
-    // パスデータを生成
-    let path_data = data
-        .iter()
-        .enumerate()
-        .map(|(i, &value)| {
-            let x = i as f64 * segment_width;
-            let y = 400.0 - (value * scale);
-            if i == 0 {
-                format!("M {} {}", x, y)
-            } else {
-                format!("L {} {}", x, y)
-            }
-        })
-        .collect::<Vec<_>>()
-        .join(" ");
+    let mut path = String::new();
+    let mut points = String::new();
 
-    // データポイントとラベルを生成
-    let points = data
-        .iter()
-        .enumerate()
-        .map(|(i, &value)| {
-            let x = i as f64 * segment_width;
-            let y = 400.0 - (value * scale);
-            format!(
-                "<circle cx=\"{}\" cy=\"{}\" r=\"4\" fill=\"#B3E0FF\"/>{}>",
-                x,
-                y,
-                generate_value_text(x, y - 15.0, value)
-            )
-        })
-        .collect::<Vec<_>>()
-        .join("\n");
+    // Generate path
+    path.push_str(&format!("<path d=\"M"));
+    for (i, &value) in data.iter().enumerate() {
+        let x = i as f64 * segment_width;
+        let y = 400.0 - (value * scale);
+        if i == 0 {
+            path.push_str(&format!(" {} {}", x, y));
+        } else {
+            path.push_str(&format!(" L {} {}", x, y));
+        }
+    }
+    path.push_str(&format!(
+        "\" stroke=\"{}\" stroke-width=\"2\" fill=\"none\"/>",
+        color
+    ));
 
-    format!(
-        "<path d=\"{}\" stroke=\"#B3E0FF\" stroke-width=\"2\" fill=\"none\"/>{}>",
-        path_data, points
-    )
+    // Generate points
+    for (i, &value) in data.iter().enumerate() {
+        let x = i as f64 * segment_width;
+        let y = 400.0 - (value * scale);
+        points.push_str(&format!(
+            "<circle cx=\"{}\" cy=\"{}\" r=\"4\" fill=\"{}\"/>{}>",
+            x,
+            y,
+            color,
+            generate_value_text(x, y - 15.0, value)
+        ));
+    }
+
+    format!("{}\n{}", path, points)
 }
 
-fn generate_scatter_chart_svg(data: &[f64]) -> String {
+fn generate_scatter_chart_svg(data: &[f64], colors: &[String]) -> String {
     let max_value = data.iter().copied().fold(f64::NEG_INFINITY, f64::max);
     let segment_width = 600.0 / data.len() as f64;
     let scale = 400.0 / max_value;
+    let default_colors = get_default_colors();
+    let color = colors
+        .first()
+        .map(|s| s.as_str())
+        .unwrap_or(default_colors[0]);
 
     data.iter()
         .enumerate()
@@ -412,9 +464,10 @@ fn generate_scatter_chart_svg(data: &[f64]) -> String {
             let x = i as f64 * segment_width;
             let y = 400.0 - (value * scale);
             format!(
-                "<circle cx=\"{}\" cy=\"{}\" r=\"6\" fill=\"#B3E0FF\"/>{}>",
+                "<circle cx=\"{}\" cy=\"{}\" r=\"6\" fill=\"{}\"/>{}>",
                 x,
                 y,
+                color,
                 generate_value_text(x, y - 15.0, value)
             )
         })
@@ -571,7 +624,7 @@ fn generate_area_chart_svg(series: &[Series]) -> String {
             let x = i as f64 * segment_width;
             let y = 400.0 - (data.value * scale);
             paths.push_str(&format!(
-                "<circle cx=\"{}\" cy=\"{}\" r=\"4\" fill=\"#B3E0FF\"/>{}>",
+                "<circle cx=\"{}\" cy=\"{}\" r=\"4\" fill=\"#0000FF\"/>{}>",
                 x,
                 y,
                 generate_value_text(x, y - 15.0, data.value)

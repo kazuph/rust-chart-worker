@@ -54,13 +54,17 @@ The service will run on `http://localhost:8787` by default.
 
 ```bash
 # Using GET request
-curl "http://localhost:8787/api?type=line&data=10,20,15,25,30,20,35,40,30,45" \
+curl "http://localhost:8787/api?type=line&data=10,20,15,25,30,20,35,40,30,45&colors=%23B3E0FF" \
   -o images/line_chart.png
 
 # Using POST request
 curl -X POST http://localhost:8787 \
   -H "Content-Type: application/json" \
-  -d '{"graph_type": "line", "data": [10, 20, 15, 25, 30, 20, 35, 40, 30, 45]}' \
+  -d '{
+    "graph_type": "line",
+    "data": [10, 20, 15, 25, 30, 20, 35, 40, 30, 45],
+    "color": "#B3E0FF"
+  }' \
   -o images/line_chart.png
 ```
 
@@ -70,13 +74,17 @@ curl -X POST http://localhost:8787 \
 
 ```bash
 # Using GET request
-curl "http://localhost:8787/api?type=bar&data=10,20,15,25,30,20,35,40,30,45" \
+curl "http://localhost:8787/api?type=bar&data=10,20,15,25,30,20,35,40,30,45&colors=%23FFB3B3" \
   -o images/bar_chart.png
 
 # Using POST request
 curl -X POST http://localhost:8787 \
   -H "Content-Type: application/json" \
-  -d '{"graph_type": "bar", "data": [10, 20, 15, 25, 30, 20, 35, 40, 30, 45]}' \
+  -d '{
+    "graph_type": "bar",
+    "data": [10, 20, 15, 25, 30, 20, 35, 40, 30, 45],
+    "color": "#FFB3B3"
+  }' \
   -o images/bar_chart.png
 ```
 
@@ -86,13 +94,17 @@ curl -X POST http://localhost:8787 \
 
 ```bash
 # Using GET request
-curl "http://localhost:8787/api?type=scatter&data=10,20,15,25,30,20,35,40,30,45" \
+curl "http://localhost:8787/api?type=scatter&data=10,20,15,25,30,20,35,40,30,45&colors=%23FFE6B3" \
   -o images/scatter_plot.png
 
 # Using POST request
 curl -X POST http://localhost:8787 \
   -H "Content-Type: application/json" \
-  -d '{"graph_type": "scatter", "data": [10, 20, 15, 25, 30, 20, 35, 40, 30, 45]}' \
+  -d '{
+    "graph_type": "scatter",
+    "data": [10, 20, 15, 25, 30, 20, 35, 40, 30, 45],
+    "color": "#FFE6B3"
+  }' \
   -o images/scatter_plot.png
 ```
 
@@ -102,7 +114,7 @@ curl -X POST http://localhost:8787 \
 
 ```bash
 # Using GET request with customization
-curl "http://localhost:8787/api?type=bar&data=10,20,15,25,30&title=Monthly%20Sales%202024&x_label=Month&y_label=Sales%20(millions)" \
+curl "http://localhost:8787/api?type=bar&data=10,20,15,25,30&title=Monthly%20Sales%202024&x_label=Month&y_label=Sales%20(millions)&colors=%23E6B3FF" \
   -o images/custom_chart.png
 
 # Using POST request with customization
@@ -113,7 +125,8 @@ curl -X POST http://localhost:8787 \
     "data": [10, 20, 15, 25, 30],
     "title": "Monthly Sales 2024",
     "x_label": "Month",
-    "y_label": "Sales (millions)"
+    "y_label": "Sales (millions)",
+    "color": "#E6B3FF"
   }' \
   -o images/custom_chart.png
 ```
