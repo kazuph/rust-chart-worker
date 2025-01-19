@@ -339,11 +339,7 @@ fn generate_bar_chart_svg(data: &[f64]) -> String {
             let text_x = x + (bar_width * 0.4);
             let text_y = y + (height / 2.0);
             format!(
-                r#"<rect x="{}" y="{}" width="{}" height="{}" fill="blue"/>
-                <path d="M {} {} h 0" stroke="white" stroke-width="1"/>
-                <path d="M {} {} h 0" stroke="black" stroke-width="1"/>
-                <path d="M {} {} h 0" stroke="white" stroke-width="2" fill="none"/>
-                {}"#,
+                "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" fill=\"#B3E0FF\"/><path d=\"M {} {} h 0\" stroke=\"white\" stroke-width=\"1\"/><path d=\"M {} {} h 0\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M {} {} h 0\" stroke=\"white\" stroke-width=\"2\" fill=\"none\"/>{}>",
                 x,
                 y,
                 bar_width * 0.8,
@@ -390,8 +386,7 @@ fn generate_line_chart_svg(data: &[f64]) -> String {
             let x = i as f64 * segment_width;
             let y = 400.0 - (value * scale);
             format!(
-                r#"<circle cx="{}" cy="{}" r="4" fill="blue"/>
-            {}"#,
+                "<circle cx=\"{}\" cy=\"{}\" r=\"4\" fill=\"#B3E0FF\"/>{}>",
                 x,
                 y,
                 generate_value_text(x, y - 15.0, value)
@@ -401,8 +396,7 @@ fn generate_line_chart_svg(data: &[f64]) -> String {
         .join("\n");
 
     format!(
-        r#"<path d="{}" stroke="blue" stroke-width="2" fill="none"/>
-        {}"#,
+        "<path d=\"{}\" stroke=\"#B3E0FF\" stroke-width=\"2\" fill=\"none\"/>{}>",
         path_data, points
     )
 }
@@ -418,8 +412,7 @@ fn generate_scatter_chart_svg(data: &[f64]) -> String {
             let x = i as f64 * segment_width;
             let y = 400.0 - (value * scale);
             format!(
-                r#"<circle cx="{}" cy="{}" r="6" fill="blue"/>
-                {}"#,
+                "<circle cx=\"{}\" cy=\"{}\" r=\"6\" fill=\"#B3E0FF\"/>{}>",
                 x,
                 y,
                 generate_value_text(x, y - 15.0, value)
@@ -452,7 +445,7 @@ fn generate_pie_chart_svg(series: &[Series], is_donut: bool) -> String {
     let radius = 180.0;
     let inner_radius = if is_donut { radius * 0.6 } else { 0.0 };
     let colors = vec![
-        "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40",
+        "#FFB3B3", "#B3E0FF", "#FFE6B3", "#B3FFB3", "#E6B3FF", "#FFD9B3",
     ];
 
     let mut paths = String::new();
@@ -533,7 +526,7 @@ fn generate_area_chart_svg(series: &[Series]) -> String {
         .fold(f64::NEG_INFINITY, f64::max);
 
     let colors = vec![
-        "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40",
+        "#FFB3B3", "#B3E0FF", "#FFE6B3", "#B3FFB3", "#E6B3FF", "#FFD9B3",
     ];
     let mut paths = String::new();
 
@@ -578,11 +571,9 @@ fn generate_area_chart_svg(series: &[Series]) -> String {
             let x = i as f64 * segment_width;
             let y = 400.0 - (data.value * scale);
             paths.push_str(&format!(
-                r#"<circle cx="{}" cy="{}" r="4" fill="{}"/>
-                {}"#,
+                "<circle cx=\"{}\" cy=\"{}\" r=\"4\" fill=\"#B3E0FF\"/>{}>",
                 x,
                 y,
-                color,
                 generate_value_text(x, y - 15.0, data.value)
             ));
         }
@@ -607,7 +598,7 @@ fn generate_radar_chart_svg(series: &[Series]) -> String {
     let center_y = 0.0;
     let radius = 180.0;
     let colors = vec![
-        "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40",
+        "#FFB3B3", "#B3E0FF", "#FFE6B3", "#B3FFB3", "#E6B3FF", "#FFD9B3",
     ];
 
     let mut svg = String::new();
