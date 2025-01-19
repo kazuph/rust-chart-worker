@@ -140,39 +140,7 @@ curl -X POST http://localhost:8787 \
   -o images/custom_chart_ja.png
 ```
 
-### 5. 〽️ Sine Wave Data Test
-
-![Sine Wave Example](images/sine_wave.png)
-
-```bash
-# Using GET request
-curl "http://localhost:8787/api?type=line&data=$(python3 -c 'import math; print(",".join(str(math.sin(x/10)*10 + 20) for x in range(50)))')" \
-  -o images/sine_wave.png
-
-# Using POST request
-curl -X POST http://localhost:8787 \
-  -H "Content-Type: application/json" \
-  -d "{\"graph_type\": \"line\", \"data\": $(python3 -c 'import math; print([math.sin(x/10)*10 + 20 for x in range(50)])')}" \
-  -o images/sine_wave.png
-```
-
-### 6. 🎲 Random Data Test
-
-![Random Data Example](images/random_data.png)
-
-```bash
-# Using GET request
-curl "http://localhost:8787/api?type=line&data=$(python3 -c 'import random; print(",".join(str(random.uniform(0, 100)) for _ in range(20)))')" \
-  -o images/random_data.png
-
-# Using POST request
-curl -X POST http://localhost:8787 \
-  -H "Content-Type: application/json" \
-  -d "{\"graph_type\": \"line\", \"data\": $(python3 -c 'import random; print([random.uniform(0, 100) for _ in range(20)])')}" \
-  -o images/random_data.png
-```
-
-### 7. 🥧 Pie Chart
+### 5. 🥧 Pie Chart
 
 ![Pie Chart Example](images/pie_chart.png)
 
