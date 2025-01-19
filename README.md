@@ -146,7 +146,7 @@ curl -X POST http://localhost:8787 \
 
 ```bash
 # Using GET request with labels and colors
-curl "http://localhost:8787/api?type=pie&data=30,20,50&labels=A,B,C&colors=%23FF6384,%2336A2EB,%23FFCE56&title=Distribution" \
+curl "http://localhost:8787/api?type=pie&data=30,20,50&labels=A,B,C&colors=%23FFB3B3,%23B3E0FF,%23FFE6B3&title=Distribution" \
   -o images/pie_chart.png
 
 # Using POST request with labels and colors
@@ -156,9 +156,9 @@ curl -X POST http://localhost:8787 \
     "graph_type": "pie",
     "series": [{
       "data": [
-        {"value": 30, "label": "A", "color": "#FF6384"},
-        {"value": 20, "label": "B", "color": "#36A2EB"},
-        {"value": 50, "label": "C", "color": "#FFCE56"}
+        {"value": 30, "label": "A", "color": "#FFB3B3"},
+        {"value": 20, "label": "B", "color": "#B3E0FF"},
+        {"value": 50, "label": "C", "color": "#FFE6B3"}
       ]
     }],
     "title": "Distribution"
@@ -171,20 +171,20 @@ curl -X POST http://localhost:8787 \
 ![Donut Chart Example](images/donut_chart.png)
 
 ```bash
-# Using GET request with Japanese labels
-curl "http://localhost:8787/api?type=donut&data=35,25,40&labels=製品A,製品B,製品C&colors=%23FF6384,%2336A2EB,%23FFCE56&title=売上構成比" \
+# Using GET request with labels and colors
+curl "http://localhost:8787/api?type=donut&data=35,25,40&labels=製品A,製品B,製品C&colors=%23FFB3B3,%23B3E0FF,%23FFE6B3&title=売上構成比" \
   -o images/donut_chart.png
 
-# Using POST request with Japanese labels
+# Using POST request with labels and colors
 curl -X POST http://localhost:8787 \
   -H "Content-Type: application/json" \
   -d '{
     "graph_type": "donut",
     "series": [{
       "data": [
-        {"value": 35, "label": "製品A", "color": "#FF6384"},
-        {"value": 25, "label": "製品B", "color": "#36A2EB"},
-        {"value": 40, "label": "製品C", "color": "#FFCE56"}
+        {"value": 35, "label": "製品A", "color": "#FFB3B3"},
+        {"value": 25, "label": "製品B", "color": "#B3E0FF"},
+        {"value": 40, "label": "製品C", "color": "#FFE6B3"}
       ]
     }],
     "title": "売上構成比"
@@ -198,7 +198,7 @@ curl -X POST http://localhost:8787 \
 
 ```bash
 # Using GET request with multiple series
-curl "http://localhost:8787/api?type=area&data=30,40,35,50,45,20,25,30,35,40&labels=Week1,Week2,Week3,Week4,Week5&colors=%23FF6384,%2336A2EB&title=Team%20Performance&x_label=Week&y_label=Score" \
+curl "http://localhost:8787/api?type=area&data=30,40,35,50,45,20,25,30,35,40&labels=Week1,Week2,Week3,Week4,Week5&colors=%23FFB3B3,%23B3E0FF&title=Team%20Performance&x_label=Week&y_label=Score" \
   -o images/area_chart.png
 
 # Using POST request with multiple series
@@ -209,14 +209,14 @@ curl -X POST http://localhost:8787 \
     "series": [
       {
         "name": "Team A",
-        "color": "#FF6384",
+        "color": "#FFB3B3",
         "data": [
           {"value": 30}, {"value": 40}, {"value": 35}, {"value": 50}, {"value": 45}
         ]
       },
       {
         "name": "Team B",
-        "color": "#36A2EB",
+        "color": "#B3E0FF",
         "data": [
           {"value": 20}, {"value": 25}, {"value": 30}, {"value": 35}, {"value": 40}
         ]
