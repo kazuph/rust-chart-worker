@@ -3,3 +3,4 @@ node_modules
 .wrangler
 *.png
 *.svg
+release_notes.md
