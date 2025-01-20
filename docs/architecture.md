@@ -16,7 +16,7 @@ graph TD
     F -->|PNG Response| A
 
     subgraph Chart Generation Process
-        D --> D1[Plotly.js]
+        D --> D1[SVG Generation]
         D1 --> D2[SVG Template]
         D2 --> E
     end
@@ -26,7 +26,6 @@ graph TD
 
 ### Core Functionality
 - `worker` (v0.5.0): Rust bindings for Cloudflare Workers
-- `plotly` (v0.11): Chart generation library
 - `serde` (v1.0): JSON serialization/deserialization
 
 ### SVG/PNG Conversion
@@ -41,10 +40,10 @@ graph TD
 
 ## Technical Features
 
-### Plotly Usage and SVG Generation
-Reasons for manual SVG generation instead of direct Plotly usage:
-1. DOM unavailability in Cloudflare Workers environment
-2. Optimization for lightweight performance
+### SVG Generation
+The chart generation process:
+1. Direct SVG generation for optimal performance
+2. Custom SVG templates for each chart type
 3. Enhanced customization capabilities
 
 ### Font Processing
@@ -56,13 +55,16 @@ Currently supported chart types:
 - Bar Chart
 - Scatter Plot
 - Line Graph
+- Pie Chart
+- Radar Chart
+- Area Chart
 
 ## API Specification
 
 ### Request Format
 ```json
 {
-    "graph_type": "bar|scatter|line",
+    "graph_type": "bar|scatter|line|pie|radar|area",
     "data": [numeric array],
     "title": "Chart Title (optional)",
     "x_label": "X-Axis Label (optional)",
