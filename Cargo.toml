@@ -1,6 +1,6 @@
 [package]
 name = "rust-chart-worker"
-version = "1.1.1"
+version = "1.1.2"
 edition = "2021"
 authors = [ "Kazuhiro Homma <kazu.homma@gmail.com>" ]
 description = "A service that dynamically generates charts using Rust on Cloudflare Workers"
