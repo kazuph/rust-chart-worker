@@ -6,7 +6,7 @@ This service can create line graphs, bar charts, scatter plots, and more using t
 
 ## 🎨 Output Examples
 
-![Custom Chart Example](images/custom_chart.png)
+![Custom Chart Japanese Example](images/custom_chart_ja.png)
 
 ## ✨ Recent Improvements
 
