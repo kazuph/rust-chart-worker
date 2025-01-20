@@ -11,20 +11,26 @@ license = "MIT"
 release = true
 
 [package.metadata.wasm-pack.profile.release]
-wasm-opt = false
+wasm-opt = ['-Os']
+
+[profile.release]
+opt-level = 's'
+lto = true
+codegen-units = 1
+panic = 'abort'
 
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
-worker = { version = "0.5.0", features=["http"] }
-worker-macros = { version = "0.5.0", features=["http"] }
+worker = { version = "0.5.0", features = ["http"], default-features = false }
+worker-macros = { version = "0.5.0", features = ["http"] }
 console_error_panic_hook = "0.1.1"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-resvg = { version = "0.35.0", features = ["text"] }
-tiny-skia = "0.10.0"
-usvg = { version = "0.35.0", features = ["text"] }
+serde = { version = "1.0", features = ["derive"], default-features = false }
+serde_json = { version = "1.0", default-features = false }
+resvg = { version = "0.35.0", features = ["text"], default-features = false }
+tiny-skia = { version = "0.10.0", default-features = false }
+usvg = { version = "0.35.0", features = ["text"], default-features = false }
 usvg-text-layout = "0.35.0"
-fontdb = "0.14.1"
-getrandom = { version = "0.2", features = ["js"] }
+fontdb = { version = "0.14.1", default-features = false }
+getrandom = { version = "0.2", features = ["js"], default-features = false }

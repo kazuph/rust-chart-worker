@@ -23,19 +23,6 @@ pub async fn main(mut req: Request, _env: Env, _ctx: Context) -> Result<Response
             let chart = charts::create_chart(&graph_req);
             let svg_content = chart.generate(&graph_req);
 
-            // フォントデータベースを初期化
-            let mut fontdb = fontdb::Database::new();
-            static FONT_DATA: &[u8] = include_bytes!("../assets/MPLUS1p-Regular.ttf");
-            fontdb.load_font_data(FONT_DATA.to_vec());
-
-            // SVGパース用のオプション設定
-            let opt = usvg::Options {
-                font_family: "M PLUS 1p".to_string(),
-                font_size: 12.0,
-                dpi: 96.0,
-                ..usvg::Options::default()
-            };
-
             let png_data = match utils::png::svg_to_png(&svg_content) {
                 Ok(data) => data,
                 Err(e) => return Response::error(format!("PNG conversion error: {}", e), 500),
@@ -43,7 +30,7 @@ pub async fn main(mut req: Request, _env: Env, _ctx: Context) -> Result<Response
 
             let mut headers = Headers::new();
             headers.set("Content-Type", "image/png")?;
-            headers.set("Cache-Control", "public, max-age=86400")?;
+            headers.set("Cache-Control", "public, max-age=604800")?; // 7日間のキャッシュ
             headers.set("Access-Control-Allow-Origin", "*")?;
 
             let resp = Response::from_bytes(png_data)?;

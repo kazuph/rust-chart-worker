@@ -1,4 +1,4 @@
-use super::{get_max_value, Chart};
+use super::Chart;
 use crate::models::GraphRequest;
 use crate::utils::{self, svg};
 use std::f64::consts::PI;
@@ -23,22 +23,48 @@ impl Chart for RadarChart {
                 .collect()
         };
 
-        let max_value = get_max_value(&request.series);
+        let max_value = super::get_max_value(&request.series);
         let center_x = 400.0;
         let center_y = 300.0;
         let radius = 200.0;
         let num_axes = series[0].len();
-        let angle_step = (2.0 * PI) / (num_axes as f64);
+        let angle_step = 2.0 * PI / num_axes as f64;
+
+        // Draw background circles
+        for i in 1..=5 {
+            let r = radius * (i as f64 / 5.0);
+            let mut points = Vec::new();
+            for j in 0..num_axes {
+                let angle = -PI / 2.0 + j as f64 * angle_step;
+                let x = center_x + r * angle.cos();
+                let y = center_y + r * angle.sin();
+                points.push((x, y));
+            }
+            let path = points
+                .iter()
+                .enumerate()
+                .map(|(i, (x, y))| {
+                    if i == 0 {
+                        format!("M {:.1} {:.1}", x, y)
+                    } else {
+                        format!("L {:.1} {:.1}", x, y)
+                    }
+                })
+                .collect::<Vec<_>>()
+                .join(" ");
+            svg_content.push_str(&format!(
+                r#"<path d="{} Z" style="stroke:#CCCCCC;stroke-width:1;fill:none" />"#,
+                path
+            ));
+        }
 
         // Draw axis lines and labels
         for i in 0..num_axes {
-            let angle = -PI / 2.0 + (i as f64 * angle_step);
+            let angle = -PI / 2.0 + i as f64 * angle_step;
             let end_x = center_x + radius * angle.cos();
             let end_y = center_y + radius * angle.sin();
-
-            // Draw axis line
             svg_content.push_str(&format!(
-                r#"<line x1="{}" y1="{}" x2="{}" y2="{}" style="stroke:#CCCCCC;stroke-width:1"/>"#,
+                r#"<line x1="{}" y1="{}" x2="{}" y2="{}" style="stroke:#CCCCCC;stroke-width:1" />"#,
                 center_x, center_y, end_x, end_y
             ));
 
@@ -51,20 +77,10 @@ impl Chart for RadarChart {
                 label_y,
                 i + 1
             ));
-
-            // Draw concentric circles
-            for j in 1..=5 {
-                let r = radius * (j as f64 / 5.0);
-                svg_content.push_str(&format!(
-                    r#"<circle cx="{}" cy="{}" r="{}" fill="none" style="stroke:#CCCCCC;stroke-width:1"/>"#,
-                    center_x, center_y, r
-                ));
-            }
         }
 
         // Draw data
         for (series_idx, series_data) in series.iter().enumerate() {
-            let mut path = String::new();
             let color = request
                 .colors
                 .as_ref()
@@ -74,51 +90,48 @@ impl Chart for RadarChart {
                     utils::get_default_colors()[series_idx % utils::get_default_colors().len()],
                 );
 
+            let mut points = Vec::new();
             for (i, &value) in series_data.iter().enumerate() {
-                let angle = -PI / 2.0 + (i as f64 * angle_step);
+                let angle = -PI / 2.0 + i as f64 * angle_step;
                 let r = radius * (value / max_value);
                 let x = center_x + r * angle.cos();
                 let y = center_y + r * angle.sin();
-
-                if i == 0 {
-                    path.push_str(&format!("M {} {}", x, y));
-                } else {
-                    path.push_str(&format!(" L {} {}", x, y));
-                }
-
-                // Draw point
-                svg_content.push_str(&format!(
-                    r#"<circle cx="{}" cy="{}" r="4" fill="{}"/>"#,
-                    x, y, color
-                ));
-                svg_content.push_str(&utils::generate_value_text(x, y, value));
+                points.push((x, y));
             }
 
-            // Close the path
-            path.push_str(" Z");
-
-            // Draw filled area with transparency
+            // Draw polygon
+            let path = points
+                .iter()
+                .enumerate()
+                .map(|(i, (x, y))| {
+                    if i == 0 {
+                        format!("M {:.1} {:.1}", x, y)
+                    } else {
+                        format!("L {:.1} {:.1}", x, y)
+                    }
+                })
+                .collect::<Vec<_>>()
+                .join(" ");
             svg_content.push_str(&format!(
-                r#"<path d="{}" fill="{}" fill-opacity="0.3"/>"#,
-                path, color
+                r#"<path d="{} Z" style="stroke:{};stroke-width:2;fill:{};fill-opacity:0.2" />"#,
+                path, color, color
             ));
 
-            // Draw outline
-            svg_content.push_str(&format!(
-                r#"<path d="{}" style="stroke:{};stroke-width:2" fill="none"/>"#,
-                path, color
-            ));
+            // Draw points and values
+            for (i, ((x, y), &value)) in points.iter().zip(series_data.iter()).enumerate() {
+                svg_content.push_str(&format!(
+                    r#"<circle cx="{}" cy="{}" r="4" fill="{}" />"#,
+                    x, y, color
+                ));
+                svg_content.push_str(&utils::svg::generate_value_text(*x, *y, value));
+            }
         }
 
         if !request.series.is_empty() {
-            svg_content.push_str(&svg::create_legend(&request.series, 600.0, 50.0));
+            svg_content.push_str(&svg::create_legend(&request.series, 520.0, 50.0));
         }
 
         svg_content.push_str(svg::create_svg_footer());
         svg_content
-    }
-
-    fn needs_axes(&self) -> bool {
-        false
     }
 }

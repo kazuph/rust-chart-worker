@@ -9,7 +9,6 @@ use crate::models::{GraphRequest, GraphType, Series};
 
 pub trait Chart {
     fn generate(&self, request: &GraphRequest) -> String;
-    fn needs_axes(&self) -> bool;
 }
 
 pub fn create_chart(request: &GraphRequest) -> Box<dyn Chart> {

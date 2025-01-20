@@ -1,7 +1,4 @@
-use fontdb::Database;
 use resvg::usvg::{self, TreeParsing};
-use resvg::Tree;
-use tiny_skia::Pixmap;
 use usvg_text_layout::TreeTextToPath;
 use worker::console_log;
 

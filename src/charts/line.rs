@@ -1,4 +1,4 @@
-use super::{get_max_value, Chart};
+use super::Chart;
 use crate::models::GraphRequest;
 use crate::utils::{self, svg};
 
@@ -22,7 +22,7 @@ impl Chart for LineChart {
                 .collect()
         };
 
-        let max_value = get_max_value(&request.series);
+        let max_value = super::get_max_value(&request.series);
         let segment_width = 640.0 / (series[0].len() as f64 - 1.0);
 
         svg_content.push_str(&utils::svg::generate_y_axis_ticks(max_value));
@@ -72,9 +72,5 @@ impl Chart for LineChart {
 
         svg_content.push_str(svg::create_svg_footer());
         svg_content
-    }
-
-    fn needs_axes(&self) -> bool {
-        true
     }
 }

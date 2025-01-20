@@ -1,6 +1,6 @@
 use super::Chart;
 use crate::models::GraphRequest;
-use crate::utils::{self, svg};
+use crate::utils;
 use std::f64::consts::PI;
 
 pub struct PieChart {
@@ -110,9 +110,5 @@ impl Chart for PieChart {
 
         svg_content.push_str("</g></svg>");
         svg_content
-    }
-
-    fn needs_axes(&self) -> bool {
-        false
     }
 }
