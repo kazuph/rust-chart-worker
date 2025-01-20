@@ -23,17 +23,19 @@ impl Chart for BarChart {
         };
 
         let max_value = get_max_value(&request.series);
-        let bar_width = 640.0 / (series[0].len() as f64);
-        let bar_spacing = bar_width * 0.1;
-        let series_width = bar_width - (2.0 * bar_spacing);
-        let series_spacing = series_width / (series.len() as f64);
+        let segment_width = 640.0 / series[0].len() as f64;
+        let bar_width = segment_width * 0.8; // 80% of segment width
+        let bar_spacing = segment_width * 0.1; // 10% spacing on each side
+        let series_width = bar_width;
+        let series_spacing = series_width / series.len() as f64;
 
         svg_content.push_str(&utils::svg::generate_y_axis_ticks(max_value));
-        svg_content.push_str(&utils::svg::generate_x_axis_ticks(series[0].len()));
+        svg_content.push_str(&utils::svg::generate_x_axis_ticks_for_bar(series[0].len()));
 
         for (series_idx, series_data) in series.iter().enumerate() {
             for (i, &value) in series_data.iter().enumerate() {
-                let x = (i as f64 * bar_width) + bar_spacing + (series_idx as f64 * series_spacing);
+                let center_x = i as f64 * segment_width + (segment_width / 2.0);
+                let x = center_x - (bar_width / 2.0) + (series_idx as f64 * series_spacing);
                 let height = ((value / max_value) * (450.0 - 50.0)).max(0.0);
                 let y = 450.0 - height;
                 let color = request

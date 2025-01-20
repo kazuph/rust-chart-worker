@@ -95,7 +95,7 @@ pub fn generate_y_axis_ticks(max_value: f64) -> String {
     ticks
 }
 
-pub fn generate_x_axis_ticks(num_points: usize) -> String {
+pub fn generate_x_axis_ticks_for_line(num_points: usize) -> String {
     let mut ticks = String::new();
     let segment_width = 640.0 / (num_points as f64 - 1.0);
 
@@ -108,6 +108,26 @@ pub fn generate_x_axis_ticks(num_points: usize) -> String {
         ));
     }
     ticks
+}
+
+pub fn generate_x_axis_ticks_for_bar(num_points: usize) -> String {
+    let mut ticks = String::new();
+    let segment_width = 640.0 / num_points as f64;
+
+    for i in 0..num_points {
+        let x = i as f64 * segment_width + (segment_width / 2.0);
+        ticks.push_str(&format!(
+            r#"<line x1="{x}" y1="450" x2="{x}" y2="455" stroke="black" stroke-width="2"/>
+            <text x="{x}" y="470" text-anchor="middle" font-family="M PLUS 1p" font-size="12">{}</text>"#,
+            i + 1
+        ));
+    }
+    ticks
+}
+
+#[deprecated(note = "Use generate_x_axis_ticks_for_line or generate_x_axis_ticks_for_bar instead")]
+pub fn generate_x_axis_ticks(num_points: usize) -> String {
+    generate_x_axis_ticks_for_line(num_points)
 }
 
 pub fn generate_value_text(x: f64, y: f64, value: f64) -> String {

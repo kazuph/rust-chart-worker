@@ -50,6 +50,9 @@ test-all: build
     #!/usr/bin/env bash
     set -euxo pipefail
 
+    # Kill any running wrangler processes
+    pkill -f "npx wrangler" || true
+
     # Start the server in the background
     npx wrangler dev &
     SERVER_PID=$!

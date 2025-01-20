@@ -49,7 +49,7 @@ impl Chart for AreaChart {
 
         // Draw grid lines first (behind everything)
         svg_content.push_str(&utils::svg::generate_y_axis_ticks(max_value));
-        svg_content.push_str(&utils::svg::generate_x_axis_ticks(series[0].len()));
+        svg_content.push_str(&utils::svg::generate_x_axis_ticks_for_line(series[0].len()));
 
         // Draw areas and points
         for (series_idx, series_data) in series.iter().enumerate() {
