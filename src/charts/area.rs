@@ -46,7 +46,6 @@ impl Chart for AreaChart {
         };
 
         let max_value = get_max_value(&request.series);
-        let segment_width = 640.0 / (series[0].len() as f64 - 1.0);
 
         // Draw grid lines first (behind everything)
         svg_content.push_str(&utils::svg::generate_y_axis_ticks(max_value));
@@ -66,6 +65,8 @@ impl Chart for AreaChart {
             // Draw area
             let mut path = String::new();
             path.push_str(&format!("M 0 450")); // Start at bottom-left
+
+            let segment_width = 640.0 / (series_data.len() as f64 - 1.0);
 
             // Draw upper line
             for (i, &value) in series_data.iter().enumerate() {

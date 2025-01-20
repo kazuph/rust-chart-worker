@@ -97,7 +97,7 @@ pub fn generate_y_axis_ticks(max_value: f64) -> String {
 
 pub fn generate_x_axis_ticks(num_points: usize) -> String {
     let mut ticks = String::new();
-    let segment_width = 640.0 / num_points as f64;
+    let segment_width = 640.0 / (num_points as f64 - 1.0);
 
     for i in 0..num_points {
         let x = i as f64 * segment_width;
