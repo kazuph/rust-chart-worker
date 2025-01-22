@@ -1,0 +1,5 @@
+# Cursor Rules
+
+## コード修正のルール
+- 修正が終わったらjust buildを実行して静的チェックする
+- 新機能を追加した場合は、READMEとjustfileに書いてあるcurlのサンプルを一緒に修正・追加する 

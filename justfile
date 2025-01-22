@@ -14,7 +14,7 @@ dev:
 
 # Build the project
 build:
-    worker-build --release
+    NODE_ENV=development worker-build
 
 # Run tests
 test:
@@ -163,6 +163,28 @@ test-all:
             "y_label": "アクセス数（万）"
         }' \
         -o images/multi_series_area.png
+
+    # Radar Chart (Single Series)
+    curl -X POST http://localhost:8787 \
+        -H "Content-Type: application/json" \
+        -d '{
+            "graph_type": "radar",
+            "series": [
+                {
+                    "name": "Product A",
+                    "color": "#FFB3B3",
+                    "data": [
+                        {"value": 80, "label": "Quality"},
+                        {"value": 70, "label": "Price"},
+                        {"value": 90, "label": "Design"},
+                        {"value": 85, "label": "Features"},
+                        {"value": 75, "label": "Support"}
+                    ]
+                }
+            ],
+            "title": "製品分析"
+        }' \
+        -o images/radar_chart.png
 
     # Multi-series Radar Chart
     curl -X POST http://localhost:8787 \

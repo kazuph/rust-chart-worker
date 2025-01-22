@@ -47,11 +47,9 @@ impl Chart for AreaChart {
         let max_value = get_max_value(&request.series);
         let segment_width = 640.0 / (series[0].len() as f64 - 1.0);
 
-        // Draw grid lines and axes
+        // Draw areas first
         svg_content.push_str(
-            r#"<g transform="translate(80, 50)">
-<line x1="0" y1="450" x2="640" y2="450" stroke="black" stroke-width="2"/>
-<line x1="0" y1="0" x2="0" y2="450" stroke="black" stroke-width="2"/>"#,
+            r#"<g transform="translate(80, 50)">"#,
         );
 
         // Draw areas
@@ -87,13 +85,12 @@ impl Chart for AreaChart {
             ));
             path.push_str(" Z"); // Close the path
 
-            // Add the area with transparency
             svg_content.push_str(&format!(
-                r#"<path d="{}" fill="{}" fill-opacity="0.3" stroke="{}" stroke-width="2"/>"#,
-                path, color, color
+                r#"<path d="{}" fill="{}" fill-opacity="0.3"/>"#,
+                path, color
             ));
 
-            // Add data points
+            // Add data points and values
             for (i, &value) in series_data.iter().enumerate() {
                 let x = i as f64 * segment_width;
                 let y = 450.0 - ((value / max_value) * 400.0);
@@ -103,6 +100,23 @@ impl Chart for AreaChart {
                 ));
                 svg_content.push_str(&utils::svg::generate_value_text(x, y, value));
             }
+        }
+
+        // Draw grid lines and axes last (on top)
+        svg_content.push_str(
+            r#"<line x1="0" y1="450" x2="640" y2="450" stroke="black" stroke-width="2"/>
+<line x1="0" y1="0" x2="0" y2="450" stroke="black" stroke-width="2"/>"#,
+        );
+
+        // Add Y-axis labels
+        let y_ticks = 5;
+        for i in 0..=y_ticks {
+            let y = 450.0 - (i as f64 * 400.0 / y_ticks as f64);
+            let value = (i as f64 / y_ticks as f64) * max_value;
+            svg_content.push_str(&format!(
+                r#"<text x="-10" y="{:.1}" text-anchor="end" font-family="M PLUS 1p" font-size="12">{:.1}</text>"#,
+                y, value
+            ));
         }
 
         svg_content.push_str("</g></svg>");

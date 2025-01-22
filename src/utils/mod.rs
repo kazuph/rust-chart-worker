@@ -7,15 +7,6 @@ pub fn get_default_colors() -> Vec<&'static str> {
     ]
 }
 
-pub fn generate_value_text(x: f64, y: f64, value: f64) -> String {
-    format!(
-        r#"<text x="{}" y="{}" text-anchor="middle" font-size="12">{:.1}</text>"#,
-        x,
-        y - 10.0,
-        value
-    )
-}
-
 pub fn format_number(num: f64) -> String {
     if num.fract() == 0.0 {
         format!("{:.0}", num)

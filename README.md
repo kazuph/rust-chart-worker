@@ -285,88 +285,138 @@ curl -X POST http://localhost:8787 \
   -o images/radar_chart.png
 ```
 
-## 📚 API Specification
+### 11. 📊 マルチシリーズの例
 
-### 🔌 Endpoints
-- GET /api
-- POST /
+#### 11.1 📈 マルチシリーズ折れ線グラフ
 
-### 📥 Request Format
-#### GET Request Query Parameters
-```
-type: string      // "line", "bar", "scatter", "pie", "donut", "area", "radar" (default: "line")
-data: string      // Comma-separated data points (e.g., "10,20,30")
-labels: string    // (Optional) Comma-separated labels for data points
-colors: string    // (Optional) Comma-separated colors in hex format (URL encoded, e.g., %23FF6384 for #FF6384)
-title: string     // (Optional) Graph title
-x_label: string   // (Optional) X-axis label
-y_label: string   // (Optional) Y-axis label
-```
-
-#### POST Request Body
-```json
-{
-  "graph_type": string,  // "line", "bar", "scatter", "pie", "donut", "area", "radar"
-  "data": number[],      // Array of data points (legacy format)
-  "series": [            // New format with enhanced features
-    {
-      "name": string,    // (Optional) Series name
-      "color": string,   // (Optional) Series color in hex format
-      "data": [
-        {
-          "value": number,   // Data point value
-          "label": string,   // (Optional) Data point label
-          "color": string    // (Optional) Data point color in hex format
-        }
-      ]
-    }
-  ],
-  "title": string,       // (Optional) Graph title
-  "x_label": string,     // (Optional) X-axis label
-  "y_label": string      // (Optional) Y-axis label
-}
-```
-
-### 🎨 Color Customization
-- Default color palette: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40"]
-- Colors can be specified at both series and individual data point level
-- Data point color takes precedence over series color
-
-### 📊 Chart Type Features
-- 📈 Line Chart: Basic line chart with data points
-- 📊 Bar Chart: Vertical bar chart
-- 🔵 Scatter Plot: Data points without connecting lines
-- 🥧 Pie Chart: Circular statistical chart
-- 🍩 Donut Chart: Pie chart with center hole
-- 📈 Area Chart: Line chart with filled area below
-- 🎯 Radar Chart: Multi-variable data on a circular graph
-
-### ⚠️ Error Responses
-- 405: Method Not Allowed - When accessed with methods other than GET or POST
-- 400: Bad Request - Invalid JSON/parameters or empty data array
-- 500: Internal Server Error - Error during graph generation
-
-## 🚀 Deployment
-
-Deploy to Cloudflare Workers:
+![Multi-series Line Chart Example](images/multi_series_line.png)
 
 ```bash
-# Development
-npx wrangler dev
-# The service will run on http://localhost:8787
-
-# Production Deployment
-npx wrangler deploy
-# This will deploy to https://<your-worker>.workers.dev
+curl -X POST http://localhost:8787 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "graph_type": "line",
+    "series": [
+      {
+        "name": "Team A",
+        "color": "#FF6384",
+        "data": [
+          {"value": 30}, {"value": 40}, {"value": 35}, {"value": 50}, {"value": 45}
+        ]
+      },
+      {
+        "name": "Team B",
+        "color": "#36A2EB",
+        "data": [
+          {"value": 20}, {"value": 25}, {"value": 30}, {"value": 35}, {"value": 40}
+        ]
+      }
+    ],
+    "title": "Team Performance Comparison",
+    "x_label": "Week",
+    "y_label": "Score"
+  }' \
+  -o images/multi_series_line.png
 ```
 
-### 📦 Deployment Size
-- Total Upload: ~4.7 MB (gzip: ~2.1 MB)
-- Worker Startup Time: ~5 ms
-- ✨ Fits within Cloudflare Workers' free tier limits!
+#### 11.2 📊 マルチシリーズ棒グラフ
 
-The deployment size includes the WASM binary and the embedded font file. Despite including a full-featured font for Japanese text support, the worker still comfortably fits within Cloudflare Workers' free tier limits.
+![Multi-series Bar Chart Example](images/multi_series_bar.png)
 
-## 📜 License
+```bash
+curl -X POST http://localhost:8787 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "graph_type": "bar",
+    "series": [
+      {
+        "name": "2023年",
+        "color": "#FF6384",
+        "data": [
+          {"value": 100}, {"value": 120}, {"value": 130}, {"value": 110}
+        ]
+      },
+      {
+        "name": "2024年",
+        "color": "#36A2EB",
+        "data": [
+          {"value": 110}, {"value": 130}, {"value": 140}, {"value": 120}
+        ]
+      }
+    ],
+    "title": "四半期売上比較",
+    "x_label": "四半期",
+    "y_label": "売上（百万円）"
+  }' \
+  -o images/multi_series_bar.png
+```
 
-MIT
+#### 11.3 📈 マルチシリーズエリアチャート
+
+![Multi-series Area Chart Example](images/multi_series_area.png)
+
+```bash
+curl -X POST http://localhost:8787 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "graph_type": "area",
+    "series": [
+      {
+        "name": "Desktop",
+        "color": "#FF6384",
+        "data": [
+          {"value": 50}, {"value": 55}, {"value": 60}, {"value": 58}, {"value": 62}
+        ]
+      },
+      {
+        "name": "Mobile",
+        "color": "#36A2EB",
+        "data": [
+          {"value": 30}, {"value": 35}, {"value": 40}, {"value": 45}, {"value": 48}
+        ]
+      }
+    ],
+    "title": "デバイス別アクセス数",
+    "x_label": "月",
+    "y_label": "アクセス数（万）"
+  }' \
+  -o images/multi_series_area.png
+```
+
+#### 11.4 🎯 マルチシリーズレーダーチャート
+
+![Multi-series Radar Chart Example](images/multi_series_radar.png)
+
+```bash
+curl -X POST http://localhost:8787 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "graph_type": "radar",
+    "series": [
+      {
+        "name": "Product A",
+        "color": "#FFB3B3",
+        "data": [
+          {"value": 80, "label": "Quality"},
+          {"value": 70, "label": "Price"},
+          {"value": 90, "label": "Design"},
+          {"value": 85, "label": "Features"},
+          {"value": 75, "label": "Support"}
+        ]
+      },
+      {
+        "name": "Product B",
+        "color": "#B3E0FF",
+        "data": [
+          {"value": 70, "label": "Quality"},
+          {"value": 85, "label": "Price"},
+          {"value": 75, "label": "Design"},
+          {"value": 80, "label": "Features"},
+          {"value": 90, "label": "Support"}
+        ]
+      }
+    ],
+    "title": "製品比較分析"
+  }' \
+  -o images/multi_series_radar.png
+```

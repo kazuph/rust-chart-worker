@@ -13,6 +13,15 @@ release = true
 [package.metadata.wasm-pack.profile.release]
 wasm-opt = ['-Os']
 
+[package.metadata.wasm-pack.profile.dev]
+wasm-opt = false
+
+[package.metadata.wasm-pack.profile.dev.wasm-bindgen]
+debug-js-glue = true
+demangle-name-section = true
+dwarf-debug-info = false
+omit-default-module-path = false
+
 [profile.release]
 opt-level = 's'
 lto = true
