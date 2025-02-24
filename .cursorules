@@ -1,0 +1,42 @@
+{
+  "editor": {
+    "formatOnSave": true,
+    "tabSize": 4,
+    "insertSpaces": true,
+    "trimTrailingWhitespace": true,
+    "insertFinalNewline": true
+  },
+  "rust-analyzer": {
+    "checkOnSave": true,
+    "clippy": {
+      "enable": true
+    }
+  },
+  "search": {
+    "exclude": [
+      "**/build",
+      "**/dist",
+      "**/node_modules",
+      "**/.git",
+      "**/target"
+    ]
+  },
+  "files": {
+    "associations": {
+      "*.rs": "rust",
+      "Cargo.toml": "toml",
+      "Cargo.lock": "toml",
+      "justfile": "shellscript",
+      "wrangler.toml": "toml"
+    }
+  },
+  "terminal": {
+    "tasks": {
+      "build": "just build",
+      "dev": "just dev",
+      "test": "just test",
+      "deploy": "just deploy",
+      "format": "just fmt"
+    }
+  }
+}
