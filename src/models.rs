@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone, Copy)]
 #[serde(rename_all = "snake_case")]
 pub enum GraphType {
     Line,
@@ -10,6 +10,13 @@ pub enum GraphType {
     Donut,
     Area,
     Radar,
+    Histogram,
+    Heatmap,
+    Candlestick,
+    Gauge,
+    Bubble,
+    StackedBar,
+    MultiLine,
 }
 
 impl Default for GraphType {
@@ -44,4 +51,9 @@ pub struct GraphRequest {
     pub x_label: Option<String>,
     pub y_label: Option<String>,
     pub colors: Option<Vec<String>>,
+    pub theme: Option<String>,
+    pub bins: Option<usize>, // ヒストグラム用
+    pub show_density: Option<bool>, // ヒストグラム用
+    pub cell_size: Option<f64>, // ヒートマップ用
+    pub show_values: Option<bool>, // ヒートマップ用
 }

@@ -1,0 +1,199 @@
+project:
+  name: "Rust Chart Worker 大規模機能追加"
+  version: "2.0.0"
+  description: "Cloudflare Workers用チャートライブラリの機能強化"
+  
+workflow:
+  phases:
+    1_planning:
+      - name: "YAML仕様作成"
+        status: "in_progress"
+        description: "機能追加計画とワークフローをYAMLで定義"
+    
+    2_implementation:
+      - name: "新チャートタイプ実装"
+        status: "pending"
+        features:
+          - histogram
+          - heatmap
+          - candlestick
+          - gauge
+      
+      - name: "インタラクティブ機能追加"
+        status: "pending"
+        features:
+          - tooltips
+          - zoom_pan
+          - click_events
+          - data_filtering
+      
+      - name: "スタイリング強化"
+        status: "pending"
+        features:
+          - themes
+          - gradients
+          - animations
+          - custom_fonts
+      
+      - name: "データ処理強化"
+        status: "pending"
+        features:
+          - multiple_series
+          - data_aggregation
+          - statistical_functions
+          - time_series_support
+    
+    3_testing:
+      - name: "ユニットテスト実行"
+        status: "pending"
+        description: "全機能のテスト実行と結果確認"
+    
+    4_documentation:
+      - name: "Obsidian出力"
+        status: "pending"
+        description: "テスト結果とサンプルチャートをObsidianに保存"
+
+features:
+  new_chart_types:
+    histogram:
+      description: "データ分布を可視化するヒストグラム"
+      parameters:
+        - bins: "区間数"
+        - range: "データ範囲"
+        - show_density: "密度表示"
+    
+    heatmap:
+      description: "2次元データの密度を色で表現"
+      parameters:
+        - color_scale: "カラースケール"
+        - cell_size: "セルサイズ"
+        - show_values: "値表示"
+    
+    candlestick:
+      description: "株価等の金融データ可視化"
+      parameters:
+        - open: "始値"
+        - high: "高値"
+        - low: "安値"
+        - close: "終値"
+    
+    gauge:
+      description: "メーター/ゲージチャート"
+      parameters:
+        - min_value: "最小値"
+        - max_value: "最大値"
+        - target_value: "目標値"
+        - color_ranges: "色域設定"
+
+  interactive_features:
+    tooltips:
+      description: "データポイントのツールチップ表示"
+      implementation: "SVG title要素とCSS"
+    
+    zoom_pan:
+      description: "拡大縮小・パン操作"
+      implementation: "SVG viewBox操作"
+    
+    click_events:
+      description: "クリックイベント処理"
+      implementation: "JavaScript callback対応"
+
+  styling_enhancements:
+    themes:
+      predefined:
+        - light
+        - dark
+        - material
+        - minimal
+      custom: "カスタムテーマ対応"
+    
+    gradients:
+      types:
+        - linear
+        - radial
+        - pattern_fill
+    
+    animations:
+      types:
+        - fade_in
+        - slide_in
+        - scale_transition
+        - data_transition
+
+  data_processing:
+    multiple_series:
+      description: "複数データ系列の同時表示"
+      max_series: 10
+    
+    aggregation:
+      functions:
+        - sum
+        - average
+        - median
+        - percentile
+    
+    statistical:
+      functions:
+        - correlation
+        - regression
+        - moving_average
+        - standard_deviation
+
+implementation_order:
+  priority_1:
+    - new_chart_types.histogram
+    - new_chart_types.heatmap
+    - styling_enhancements.themes
+  
+  priority_2:
+    - new_chart_types.candlestick
+    - new_chart_types.gauge
+    - interactive_features.tooltips
+  
+  priority_3:
+    - interactive_features.zoom_pan
+    - styling_enhancements.gradients
+    - data_processing.multiple_series
+
+testing_strategy:
+  unit_tests:
+    - chart_generation
+    - data_validation
+    - svg_output_verification
+  
+  integration_tests:
+    - api_parameter_parsing
+    - error_handling
+    - performance_benchmarks
+  
+  visual_tests:
+    - sample_data_rendering
+    - theme_application
+    - responsive_design
+
+deliverables:
+  code:
+    location: "/data/data/com.termux/files/home/rust-chart-worker/"
+    files:
+      - "src/charts/histogram.rs"
+      - "src/charts/heatmap.rs"
+      - "src/charts/candlestick.rs"
+      - "src/charts/gauge.rs"
+      - "src/themes/mod.rs"
+      - "src/interactive/mod.rs"
+  
+  documentation:
+    location: "/data/data/com.termux/files/home/storage/shared/obsidian/00_Inbox/"
+    file: "2025-06-07 Rust Chart Worker v2.0 機能追加結果.md"
+    content:
+      - feature_overview
+      - test_results
+      - sample_charts
+      - usage_examples
+
+completion_criteria:
+  - all_new_chart_types_implemented: false
+  - unit_tests_passing: false
+  - visual_samples_generated: false
+  - documentation_created: false
+  - obsidian_integration_completed: false
