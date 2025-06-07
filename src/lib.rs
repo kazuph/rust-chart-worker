@@ -258,10 +258,43 @@ pub async fn main(mut req: Request, _env: Env, _ctx: Context) -> Result<Response
             let resp = Response::from_bytes(png_data)?;
             Ok(resp.with_headers(headers))
         }
+        Method::Post => {
+            let graph_req: GraphRequest = match req.json().await {
+                Ok(req) => req,
+                Err(e) => return Response::error(format!("Invalid JSON: {}", e), 400),
+            };
+
+            if graph_req.data.is_empty() && graph_req.series.is_empty() {
+                return Response::error("No data provided", 400);
+            }
+
+            let chart = charts::create_chart(&graph_req);
+            let mut svg_content = chart.generate(&graph_req);
+            
+            // テーマを適用
+            if let Some(theme_name) = &graph_req.theme {
+                let theme = themes::ThemeManager::from_name(theme_name);
+                svg_content = theme.apply_to_svg(&svg_content);
+            }
+
+            let png_data = match utils::png::svg_to_png(&svg_content) {
+                Ok(data) => data,
+                Err(e) => return Response::error(format!("PNG conversion error: {}", e), 500),
+            };
+
+            let mut headers = Headers::new();
+            headers.set("Content-Type", "image/png")?;
+            headers.set("Cache-Control", "public, max-age=604800")?; // 7日間のキャッシュ
+            headers.set("Access-Control-Allow-Origin", "*")?;
+
+            let resp = Response::from_bytes(png_data)?;
+            Ok(resp.with_headers(headers))
+        }
         Method::Options => {
             let mut headers = Headers::new();
             headers.set("Access-Control-Allow-Origin", "*")?;
-            headers.set("Access-Control-Allow-Methods", "GET, OPTIONS")?;
+            headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")?;
+            headers.set("Access-Control-Allow-Headers", "Content-Type")?;
             let resp = Response::empty()?;
             Ok(resp.with_headers(headers))
         }

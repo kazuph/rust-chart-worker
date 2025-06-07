@@ -124,7 +124,7 @@ impl Chart for HeatmapChart {
     <style>
       .heatmap-cell {{ stroke: #fff; stroke-width: 1; }}
       .heatmap-cell:hover {{ stroke: #333; stroke-width: 2; }}
-      .cell-text {{ font-family: Arial, sans-serif; font-size: 10px; fill: #333; text-anchor: middle; dominant-baseline: middle; }}
+      .cell-text {{ font-family: Arial, sans-serif; font-size: 10px; text-anchor: middle; dominant-baseline: middle; }}
       .title {{ font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; fill: #333; text-anchor: middle; }}
       .legend {{ font-family: Arial, sans-serif; font-size: 12px; fill: #333; }}
     </style>
