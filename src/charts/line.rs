@@ -44,6 +44,17 @@ impl Chart for LineChart {
         let mut svg_content = format!(
             r#"<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+<defs>
+    <style>
+        @font-face {{
+            font-family: 'M PLUS 1p';
+            src: url('data:font/truetype;base64,') format('truetype');
+        }}
+        text {{
+            font-family: 'M PLUS 1p', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+        }}
+    </style>
+</defs>
 <rect width="800" height="600" fill="{}"/>
 <g transform="translate(80, 50)">"#,
             theme.background
@@ -52,7 +63,7 @@ impl Chart for LineChart {
         // Add title if provided
         if let Some(title) = &request.title {
             svg_content.push_str(&format!(
-                r#"<text fill="{}" x="320" y="30" text-anchor="middle" font-family="M PLUS 1p" font-size="20">{}</text>"#,
+                r#"<text fill="{}" x="320" y="30" text-anchor="middle" font-size="20">{}</text>"#,
                 theme.text, title
             ));
         }
@@ -60,7 +71,7 @@ impl Chart for LineChart {
         // Add x-axis label if provided
         if let Some(x_label) = &request.x_label {
             svg_content.push_str(&format!(
-                r#"<text fill="{}" x="320" y="520" text-anchor="middle" font-family="M PLUS 1p" font-size="14">{}</text>"#,
+                r#"<text fill="{}" x="320" y="520" text-anchor="middle" font-size="14">{}</text>"#,
                 theme.text, x_label
             ));
         }
@@ -68,7 +79,7 @@ impl Chart for LineChart {
         // Add y-axis label if provided
         if let Some(y_label) = &request.y_label {
             svg_content.push_str(&format!(
-                r#"<text fill="{}" x="-280" y="-50" text-anchor="middle" font-family="M PLUS 1p" font-size="14" transform="rotate(-90)">{}</text>"#,
+                r#"<text fill="{}" x="-280" y="-50" text-anchor="middle" font-size="14" transform="rotate(-90)">{}</text>"#,
                 theme.text, y_label
             ));
         }
@@ -86,7 +97,7 @@ impl Chart for LineChart {
             let value = min_value + (i as f64 * value_range / 5.0);
             svg_content.push_str(&format!(
                 r#"<line x1="-5" y1="{}" x2="0" y2="{}" stroke="{}" stroke-width="2"/>
-            <text fill="{}" x="-10" y="{}" text-anchor="end" font-family="M PLUS 1p" font-size="12">{:.1}</text>"#,
+            <text fill="{}" x="-10" y="{}" text-anchor="end" font-size="12">{:.1}</text>"#,
                 y, y, theme.axis, theme.text, y + 4.0, value
             ));
             if i > 0 {
@@ -102,7 +113,7 @@ impl Chart for LineChart {
             let x = i as f64 * segment_width;
             svg_content.push_str(&format!(
                 r#"<line x1="{}" y1="450" x2="{}" y2="455" stroke="{}" stroke-width="2"/>
-            <text fill="{}" x="{}" y="470" text-anchor="middle" font-family="M PLUS 1p" font-size="12">{}</text>"#,
+            <text fill="{}" x="{}" y="470" text-anchor="middle" font-size="12">{}</text>"#,
                 x, x, theme.axis, theme.text, x, i + 1
             ));
         }
@@ -139,7 +150,7 @@ impl Chart for LineChart {
                     x, y, color
                 ));
                 svg_content.push_str(&format!(
-                    r#"<text fill="{}" x="{}" y="{}" text-anchor="middle" font-family="M PLUS 1p" font-size="12">{:.1}</text>"#,
+                    r#"<text fill="{}" x="{}" y="{}" text-anchor="middle" font-size="12">{:.1}</text>"#,
                     theme.text, x, y - 10.0, point.value
                 ));
             }
@@ -159,7 +170,7 @@ impl Chart for LineChart {
                         y_offset, color
                     ));
                     svg_content.push_str(&format!(
-                        r#"<text fill="{}" x="545" y="{}" font-family="M PLUS 1p" font-size="12">{}</text>"#,
+                        r#"<text fill="{}" x="545" y="{}" font-size="12">{}</text>"#,
                         theme.text, y_offset + 15.0, name
                     ));
                     y_offset += 25.0;

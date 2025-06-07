@@ -18,7 +18,7 @@ impl Chart for PieChart {
 
         if let Some(title) = &request.title {
             svg_content.push_str(&format!(
-                r#"<text x="0" y="-250" text-anchor="middle" font-family="M PLUS 1p" font-size="20">{}</text>"#,
+                r#"<text x="0" y="-250" text-anchor="middle" font-size="20">{}</text>"#,
                 title
             ));
         }
@@ -100,7 +100,7 @@ impl Chart for PieChart {
                 let label_y = label_radius * label_angle.sin();
 
                 svg_content.push_str(&format!(
-                    r#"<text x="{:.1}" y="{:.1}" text-anchor="middle" font-family="M PLUS 1p" font-size="12">{:.1}%</text>"#,
+                    r#"<text x="{:.1}" y="{:.1}" text-anchor="middle" font-size="12">{:.1}%</text>"#,
                     label_x, label_y + 4.0, percentage
                 ));
 

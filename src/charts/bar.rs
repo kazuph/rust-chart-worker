@@ -41,6 +41,17 @@ impl super::Chart for BarChart {
 
         let mut svg_content = format!(
             r#"<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <style>
+                    @font-face {{
+                        font-family: 'M PLUS 1p';
+                        src: url('data:font/truetype;base64,') format('truetype');
+                    }}
+                    text {{
+                        font-family: 'M PLUS 1p', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+                    }}
+                </style>
+            </defs>
             <rect width="100%" height="100%" fill="{}"/>"#,
             theme.background
         );
@@ -48,7 +59,7 @@ impl super::Chart for BarChart {
         // Add title if provided
         if let Some(title) = &request.title {
             svg_content.push_str(&format!(
-                r#"<text fill="{}" x="400" y="50" text-anchor="middle" font-family="M PLUS 1p" font-size="20">{}</text>"#,
+                r#"<text fill="{}" x="400" y="50" text-anchor="middle" font-size="20">{}</text>"#,
                 theme.text, title
             ));
         }
@@ -56,7 +67,7 @@ impl super::Chart for BarChart {
         // Add x-axis label if provided
         if let Some(x_label) = &request.x_label {
             svg_content.push_str(&format!(
-                r#"<text fill="{}" x="400" y="580" text-anchor="middle" font-family="M PLUS 1p" font-size="14">{}</text>"#,
+                r#"<text fill="{}" x="400" y="580" text-anchor="middle" font-size="14">{}</text>"#,
                 theme.text, x_label
             ));
         }
@@ -64,7 +75,7 @@ impl super::Chart for BarChart {
         // Add y-axis label if provided
         if let Some(y_label) = &request.y_label {
             svg_content.push_str(&format!(
-                r#"<text fill="{}" x="30" y="300" text-anchor="middle" font-family="M PLUS 1p" font-size="14" transform="rotate(-90, 30, 300)">{}</text>"#,
+                r#"<text fill="{}" x="30" y="300" text-anchor="middle" font-size="14" transform="rotate(-90, 30, 300)">{}</text>"#,
                 theme.text, y_label
             ));
         }
@@ -82,7 +93,7 @@ impl super::Chart for BarChart {
             let value = (i as f64 * max_value / 5.0).round();
             svg_content.push_str(&format!(
                 r#"<line x1="45" y1="{}" x2="50" y2="{}" style="stroke:{};stroke-width:1"/>
-                <text fill="{}" x="40" y="{}" text-anchor="end" font-family="M PLUS 1p" font-size="12">{}</text>"#,
+                <text fill="{}" x="40" y="{}" text-anchor="end" font-size="12">{}</text>"#,
                 y, y, theme.axis, theme.text, y + 4.0, value
             ));
         }
@@ -92,7 +103,7 @@ impl super::Chart for BarChart {
             let x = 50.0 + (i as f64 * segment_width) + (segment_width / 2.0);
             svg_content.push_str(&format!(
                 r#"<line x1="{}" y1="500" x2="{}" y2="505" style="stroke:{};stroke-width:1"/>
-                <text fill="{}" x="{}" y="520" text-anchor="middle" font-family="M PLUS 1p" font-size="12">{}</text>"#,
+                <text fill="{}" x="{}" y="520" text-anchor="middle" font-size="12">{}</text>"#,
                 x, x, theme.axis, theme.text, x, i + 1
             ));
         }
@@ -150,7 +161,7 @@ impl super::Chart for BarChart {
                         y_offset, color
                     ));
                     svg_content.push_str(&format!(
-                        r#"<text fill="{}" x="545" y="{}" font-family="M PLUS 1p" font-size="12">{}</text>"#,
+                        r#"<text fill="{}" x="545" y="{}" font-size="12">{}</text>"#,
                         theme.text, y_offset + 15.0, name
                     ));
                     y_offset += 25.0;

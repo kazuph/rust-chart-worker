@@ -15,21 +15,21 @@ impl Chart for AreaChart {
         // Draw title and labels first
         if let Some(title) = &request.title {
             svg_content.push_str(&format!(
-                r#"<text x="400" y="30" text-anchor="middle" font-family="M PLUS 1p" font-size="20">{}</text>"#,
+                r#"<text x="400" y="30" text-anchor="middle" font-size="20">{}</text>"#,
                 title
             ));
         }
 
         if let Some(x_label) = request.x_label.as_deref() {
             svg_content.push_str(&format!(
-                r#"<text x="400" y="580" text-anchor="middle" font-family="M PLUS 1p" font-size="14">{}</text>"#,
+                r#"<text x="400" y="580" text-anchor="middle" font-size="14">{}</text>"#,
                 x_label
             ));
         }
 
         if let Some(y_label) = request.y_label.as_deref() {
             svg_content.push_str(&format!(
-                r#"<text x="30" y="300" text-anchor="middle" font-family="M PLUS 1p" font-size="14" transform="rotate(-90, 30, 300)">{}</text>"#,
+                r#"<text x="30" y="300" text-anchor="middle" font-size="14" transform="rotate(-90, 30, 300)">{}</text>"#,
                 y_label
             ));
         }
