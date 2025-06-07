@@ -239,11 +239,11 @@ pub async fn main(mut req: Request, _env: Env, _ctx: Context) -> Result<Response
             let chart = charts::create_chart(&graph_req);
             let mut svg_content = chart.generate(&graph_req);
             
-            // テーマを適用
-            if let Some(theme_name) = &graph_req.theme {
-                let theme = themes::ThemeManager::from_name(theme_name);
-                svg_content = theme.apply_to_svg(&svg_content);
-            }
+            // テーマを適用 (一時的に無効化)
+            // if let Some(theme_name) = &graph_req.theme {
+            //     let theme = themes::ThemeManager::from_name(theme_name);
+            //     svg_content = theme.apply_to_svg(&svg_content);
+            // }
 
             let png_data = match utils::png::svg_to_png(&svg_content) {
                 Ok(data) => data,
@@ -271,11 +271,11 @@ pub async fn main(mut req: Request, _env: Env, _ctx: Context) -> Result<Response
             let chart = charts::create_chart(&graph_req);
             let mut svg_content = chart.generate(&graph_req);
             
-            // テーマを適用
-            if let Some(theme_name) = &graph_req.theme {
-                let theme = themes::ThemeManager::from_name(theme_name);
-                svg_content = theme.apply_to_svg(&svg_content);
-            }
+            // テーマを適用 (一時的に無効化)
+            // if let Some(theme_name) = &graph_req.theme {
+            //     let theme = themes::ThemeManager::from_name(theme_name);
+            //     svg_content = theme.apply_to_svg(&svg_content);
+            // }
 
             let png_data = match utils::png::svg_to_png(&svg_content) {
                 Ok(data) => data,
