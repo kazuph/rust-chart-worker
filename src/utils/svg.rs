@@ -46,6 +46,66 @@ pub fn create_svg_footer() -> &'static str {
     "</g></svg>"
 }
 
+// Variant without axes (for radar etc.)
+pub fn create_svg_header_no_axes(
+    title: Option<&str>,
+    x_label: Option<&str>,
+    y_label: Option<&str>,
+) -> String {
+    let mut svg = format!(
+        r#"<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+<rect width="800" height="600" fill="white"/>
+<g transform="translate(0, 0)">"#
+    );
+
+    if let Some(title) = title {
+        svg.push_str(&format!(
+            r#"<text x="320" y="30" text-anchor="middle" font-family="M PLUS 1p" font-size="20">{}</text>"#,
+            title
+        ));
+    }
+
+    if let Some(x_label) = x_label {
+        svg.push_str(&format!(
+            r#"<text x="320" y="520" text-anchor="middle" font-family="M PLUS 1p" font-size="14">{}</text>"#,
+            x_label
+        ));
+    }
+
+    if let Some(y_label) = y_label {
+        svg.push_str(&format!(
+            r#"<text x="-280" y="-50" text-anchor="middle" font-family="M PLUS 1p" font-size="14" transform="rotate(-90)">{}</text>"#,
+            y_label
+        ));
+    }
+
+    // No axes here
+    svg
+}
+
+// Return a "nice" rounded max value for axis scaling (e.g., 37 -> 40, 0.87 -> 1.0)
+pub fn nice_max(max_value: f64) -> f64 {
+    if !max_value.is_finite() || max_value <= 0.0 {
+        return 1.0;
+    }
+    let exp = max_value.log10().floor();
+    let base = 10f64.powf(exp);
+    let frac = max_value / base;
+    let nice_frac = if frac <= 1.0 {
+        1.0
+    } else if frac <= 2.0 {
+        2.0
+    } else if frac <= 2.5 {
+        2.5
+    } else if frac <= 5.0 {
+        5.0
+    } else {
+        10.0
+    };
+    nice_frac * base
+}
+
 pub fn create_legend(series: &[Series], x: f64, y: f64) -> String {
     let mut legend = String::new();
     let mut y_offset = y;

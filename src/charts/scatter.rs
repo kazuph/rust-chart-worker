@@ -22,7 +22,8 @@ impl Chart for ScatterChart {
                 .collect()
         };
 
-        let max_value = super::get_max_value(&request.series);
+        let raw_max = super::get_max_value(&request.series);
+        let max_value = svg::nice_max(raw_max);
         let segment_width = 640.0 / (series[0].len() as f64 - 1.0);
 
         svg_content.push_str(&utils::svg::generate_y_axis_ticks(max_value));
@@ -50,7 +51,7 @@ impl Chart for ScatterChart {
         }
 
         if !request.series.is_empty() {
-            svg_content.push_str(&svg::create_legend(&request.series, 520.0, 50.0));
+            svg_content.push_str(&svg::create_legend(&request.series, 660.0, 50.0));
         }
 
         svg_content.push_str(svg::create_svg_footer());

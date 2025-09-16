@@ -7,7 +7,7 @@ pub struct RadarChart {}
 
 impl Chart for RadarChart {
     fn generate(&self, request: &GraphRequest) -> String {
-        let mut svg_content = svg::create_svg_header(
+        let mut svg_content = svg::create_svg_header_no_axes(
             request.title.as_deref(),
             None,
             None,
@@ -151,7 +151,7 @@ impl Chart for RadarChart {
         }
 
         if !request.series.is_empty() {
-            svg_content.push_str(&svg::create_legend(&request.series, 520.0, 50.0));
+            svg_content.push_str(&svg::create_legend(&request.series, 660.0, 50.0));
         }
 
         svg_content.push_str(svg::create_svg_footer());

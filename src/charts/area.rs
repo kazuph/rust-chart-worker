@@ -44,7 +44,8 @@ impl Chart for AreaChart {
                 .collect()
         };
 
-        let max_value = get_max_value(&request.series);
+        let raw_max = get_max_value(&request.series);
+        let max_value = utils::svg::nice_max(raw_max);
         let segment_width = 640.0 / (series[0].len() as f64 - 1.0);
 
         // Draw areas first
@@ -117,6 +118,11 @@ impl Chart for AreaChart {
                 r#"<text x="-10" y="{:.1}" text-anchor="end" font-family="M PLUS 1p" font-size="12">{:.1}</text>"#,
                 y, value
             ));
+        }
+
+        // Legend to the right
+        if !request.series.is_empty() {
+            svg_content.push_str(&crate::utils::svg::create_legend(&request.series, 660.0, 50.0));
         }
 
         svg_content.push_str("</g></svg>");

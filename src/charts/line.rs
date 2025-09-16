@@ -22,7 +22,8 @@ impl Chart for LineChart {
                 .collect()
         };
 
-        let max_value = super::get_max_value(&request.series);
+        let raw_max = super::get_max_value(&request.series);
+        let max_value = svg::nice_max(raw_max);
         let segment_width = 640.0 / (series[0].len() as f64 - 1.0);
 
         svg_content.push_str(&utils::svg::generate_y_axis_ticks(max_value));
@@ -66,29 +67,9 @@ impl Chart for LineChart {
             }
         }
 
-        // Create legend entries using same color logic as lines
-        for (series_idx, series) in request.series.iter().enumerate() {
-            let color = request
-                .colors
-                .as_ref()
-                .and_then(|c| c.get(series_idx))
-                .map(String::as_str)
-                .unwrap_or(
-                    utils::get_default_colors()[series_idx % utils::get_default_colors().len()]
-                );
-            
-            let y_pos = 50 + series_idx * 30;
-            svg_content.push_str(&format!(
-                r#"<rect x="650" y="{}" width="20" height="20" fill="{}"/>"#,
-                y_pos, color
-            ));
-            
-            if let Some(name) = &series.name {
-                svg_content.push_str(&format!(
-                    r#"<text x="680" y="{}" font-family="M PLUS 1p" font-size="14">{}</text>"#,
-                    y_pos + 15, name
-                ));
-            }
+        // Legend: only render entries that have names
+        if !request.series.is_empty() {
+            svg_content.push_str(&svg::create_legend(&request.series, 660.0, 50.0));
         }
 
         svg_content.push_str(svg::create_svg_footer());

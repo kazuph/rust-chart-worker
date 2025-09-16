@@ -25,16 +25,19 @@ impl super::Chart for BarChart {
             request.series.clone()
         };
 
-        let max_value = default_series
+        let raw_max = default_series
             .iter()
             .flat_map(|s| s.data.iter().map(|d| d.value))
             .fold(f64::NEG_INFINITY, f64::max);
+        let max_value = svg::nice_max(raw_max);
 
-        let segment_width = 700.0 / (default_series[0].data.len() as f64);
-        let bar_width = if default_series.len() > 1 {
-            segment_width * 0.6 // マルチシリーズの場合は60%に縮小
+        // Match the drawable width used by axes (0..640)
+        let segment_width = 640.0 / (default_series[0].data.len() as f64);
+        // Group width inside each segment; center the group at the tick.
+        let bar_group_width = if default_series.len() > 1 {
+            segment_width * 0.7 // multi-series: slightly wider group
         } else {
-            segment_width * 0.8 // シングルシリーズの場合は80%
+            segment_width * 0.8 // single series: comfortable width
         };
 
         let mut svg_content = format!(
@@ -89,17 +92,12 @@ impl super::Chart for BarChart {
 
         // Draw bars
         for (series_idx, series_item) in default_series.iter().enumerate() {
-            let series_offset = if default_series.len() > 1 {
-                (series_idx as f64 - (default_series.len() as f64 - 1.0) / 2.0)
-                    * (bar_width / (default_series.len() as f64 + 0.5)) // 間隔を広げる
-            } else {
-                0.0
-            };
+            let bar_each_width = bar_group_width / default_series.len() as f64;
 
             for (i, point) in series_item.data.iter().enumerate() {
-                let x = (i as f64 * segment_width)
-                    + (segment_width - bar_width) / 2.0
-                    + series_offset;
+                // Group centered at segment center
+                let group_left = (i as f64 * segment_width) + (segment_width - bar_group_width) / 2.0;
+                let x = group_left + series_idx as f64 * bar_each_width;
                 let height = (point.value / max_value) * 400.0;
                 let y = 450.0 - height;
                 let color = match &point.color {
@@ -114,13 +112,13 @@ impl super::Chart for BarChart {
                     r#"<rect x="{}" y="{}" width="{}" height="{}" fill="{}"/>"#,
                     x,
                     y,
-                    bar_width / default_series.len() as f64,
+                    bar_each_width,
                     height,
                     color
                 ));
 
                 svg_content.push_str(&utils::svg::generate_value_text(
-                    x + (bar_width / default_series.len() as f64) / 2.0,
+                    x + bar_each_width / 2.0,
                     y,
                     point.value,
                 ));
@@ -129,7 +127,8 @@ impl super::Chart for BarChart {
 
         // Add legend if there are multiple series
         if default_series.len() > 1 {
-            svg_content.push_str(&svg::create_legend(&default_series, 520.0, 50.0));
+            // Place legend outside plotting area to avoid overlap with tall bars
+            svg_content.push_str(&svg::create_legend(&default_series, 660.0, 50.0));
         }
 
         svg_content.push_str("</g></svg>");
