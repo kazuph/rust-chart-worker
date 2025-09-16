@@ -6,6 +6,8 @@ This service can create line graphs, bar charts, scatter plots, and more using t
 
 ## 🎨 Output Examples
 
+Note: Sample images below were refreshed from the production deployment on 2025-09-16.
+
 ![Custom Chart Japanese Example](images/custom_chart_ja.png)
 
 ## ✨ Recent Improvements
