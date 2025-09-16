@@ -1,0 +1,21 @@
+{
+  "name": "rust-chart-worker",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Helper npm scripts for running and deploying the Rust Cloudflare Worker.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development wrangler dev",
+    "preview": "cross-env NODE_ENV=development wrangler dev --remote",
+    "preivew": "npm run preview",
+    "deploy": "cross-env NODE_ENV=production wrangler deploy"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "wrangler": "^3.0.0"
+  }
+}
+
